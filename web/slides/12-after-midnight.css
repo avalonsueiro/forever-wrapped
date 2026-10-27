@@ -1,0 +1,24 @@
+/* Styles for 12-after-midnight.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+
+/* lifted a little so the row of records along the bottom stays clear of the legend */
+.slide .am { min-width: 0; gap: clamp(14px, 2.4vh, 26px); margin-bottom: 8vh; }
+.slide .am-kick { margin: 0; opacity: .85; }
+.slide .am-mood { font-size: clamp(64px, 14vw, 230px); margin: -0.04em 0 0.06em -0.04em; }
+.slide .am-strip { width: 100%; min-width: 0; }
+.slide .am-strip .am-cell { transition: fill-opacity .15s ease; }
+.slide .am-strip .am-cell:hover { fill-opacity: 1; }
+.slide .am-strip .am-bracket { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.slide .am-strip .am-brlabel { font-weight: 800; opacity: .85; }
+.slide .am-strip .am-hr { font-weight: 700; opacity: .55; }
+.slide .am-strip .am-hr-mid { opacity: 1; font-weight: 900; }
+.slide .am-legend .legend { gap: 8px 18px; opacity: .85; }
+
+@media (max-width: 700px) {
+  .slide .am { margin: 4vh 0 0; }
+  .slide .am-mood { font-size: clamp(56px, 19vw, 96px); }
+  .slide .am-legend .legend { font-size: 13px; gap: 6px 14px; }
+}
+
+/* how big the night's group is, under the headline */
+.slide .am .am-share { margin: 0; opacity: .7; }

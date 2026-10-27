@@ -1,0 +1,24 @@
+/* Styles for 18-places.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+.pl { width: min(1320px, 100%); }
+.pl .pl-row { gap: 24px 56px; flex-wrap: nowrap; }
+.pl .pl-copy { flex: 0 1 330px; display: grid; gap: 10px; }
+.pl .pl-head { font-size: clamp(52px, 6vw, 104px); white-space: nowrap; }
+.pl .pl-n { color: var(--ac); }
+.pl .pl-away { color: var(--ac); font-weight: 800; }
+.pl .pl-map { flex: 1 1 0; min-width: 0; }
+
+/* the map on black: white dots for land, the accent for where you listened */
+.pl .pl-land circle { fill: #fff; opacity: .2; }
+.pl .pl-routes path { fill: none; stroke: var(--ac); stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; opacity: .75; }
+.pl .pl-pins circle { stroke: #121212; stroke-width: 2; cursor: default; }
+.pl .pl-tags text { font: 800 19px var(--display); fill: #fff; paint-order: stroke; stroke: #121212; stroke-width: 5px; stroke-linejoin: round; text-transform: lowercase; }
+
+@media (max-width: 700px) {
+  .pl .pl-row { flex-wrap: wrap; gap: 22px; }
+  .pl .pl-copy { flex: 1 1 100%; }
+  .pl .pl-head { font-size: clamp(52px, 15vw, 72px); }
+  .pl .pl-map { flex: 1 1 100%; margin: 0 -20px; }
+  .pl .pl-land circle { opacity: .26; }
+  .pl .pl-tags text { font-size: 30px; stroke-width: 7px; }
+}

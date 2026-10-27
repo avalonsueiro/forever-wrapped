@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forever, Wrapped</title>
+<style>
+/* Archivo (SIL Open Font License) is bundled in vendor/fonts so the page works offline.
+   It's a variable font: weight 100-900 and width 62%-125%, so one file gives the condensed display cuts. */
+@font-face { font-family: "Archivo"; font-style: normal; font-display: swap; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url("vendor/fonts/archivo-latin-wdth-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Archivo"; font-style: normal; font-display: swap; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url("vendor/fonts/archivo-latin-ext-wdth-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Figtree"; font-style: normal; font-display: swap; font-weight: 300 900;
+  src: url("vendor/fonts/figtree-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Figtree"; font-style: normal; font-display: swap; font-weight: 300 900;
+  src: url("vendor/fonts/figtree-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+/* Story format: one idea per slide, full-bleed flat color, oversized heavy type.
+   Each slide sets --bg / --fg / --ac (background, text, accent) from a small palette in app.js. */
+:root {
+  --bg: #ffe500; --fg: #121212; --ac: #ff2d87;
+  --spotify: "Spotify Mix", "SpotifyMixUI", "Circular Spotify Text", "Circular", "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --display: var(--spotify);   /* was "Archivo", kept bundled for now */
+  --archivo: "Archivo", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: #121212; color: var(--fg); font: 500 16px/1.4 var(--display); -webkit-font-smoothing: antialiased; overflow: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+
+.story { position: fixed; inset: 0; background: #121212; color: var(--fg); overflow: hidden; text-transform: lowercase; }
+/* film grain over every page, same as the title page */
+.story::after, #eraview::before { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: .07;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+#eraview::before { position: fixed; }
+/* each page's records (shapes.js), drawn on one canvas behind the page */
+#trail { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; pointer-events: none; }
+.tip { text-transform: lowercase; }
+
+/* progress segments, like story apps */
+.bars { position: absolute; z-index: 5; top: calc(14px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); display: flex; gap: 4px; }
+.bars i { flex: 1; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--fg) 25%, transparent); overflow: hidden; }
+.bars i b { display: block; height: 100%; width: 0; background: var(--fg); }
+.bars i.done b { width: 100%; }
+.bars i.now b { width: 100%; animation: fill .6s ease-out; }
+@keyframes fill { from { width: 0; } }
+
+.top { position: absolute; z-index: 5; top: calc(30px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; gap: 12px; }
+.yearpick { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.yearpick button { text-transform: lowercase; border: 2px solid var(--fg); background: transparent; border-radius: 99px; padding: 3px 11px; font-weight: 800; font-size: 13px; cursor: pointer; }
+.yearpick button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.yearpick.off { opacity: .35; pointer-events: none; }
+
+/* click zones */
+/* They only mark the areas (and keep keyboard/screen-reader buttons); the mouse goes through them, so
+   charts underneath still get hover. Clicks are handled on the story itself in app.js. */
+.zone { position: absolute; top: 70px; bottom: 0; width: 30%; z-index: 3; background: none; border: 0; pointer-events: none; }
+.story.flip-prev { cursor: w-resize; } .story.flip-next { cursor: e-resize; }
+.story [data-hover], .story [data-hover] * { cursor: default; }
+.zone.prev { left: 0; } .zone.next { right: 0; }
+.zone:focus, .zone:focus-visible { outline: none; }   /* the invisible click areas: no white box when a key is pressed */
+.story.interactive .zone { width: 5%; }
+.hl:hover rect { fill-opacity: .95; }
+
+/* era detail: full screen in the era's highlighter color */
+#eraview { position: fixed; inset: 0; z-index: 30; background: #121212; color: #fff; overflow-y: auto; text-transform: lowercase;
+  padding: calc(64px + env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-right, 0px)) 96px max(28px, env(safe-area-inset-left, 0px));
+  animation: evIn .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes evIn { from { transform: translateY(24px); opacity: .001; } }
+#eraview .ev-body { width: min(1180px, 100%); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; min-height: calc(100vh - 220px); }
+#eraview .ev-text { display: grid; gap: 14px; align-content: center; min-width: 0; }
+#eraview .big { font-size: clamp(48px, 6.5vw, 110px); }
+#eraview .ev-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+#eraview .tag { background: var(--pen, #ffe500); color: #121212; text-transform: lowercase; letter-spacing: 0; font-size: 15px; }
+#eraview .tag.ghost { background: transparent; color: #fff; box-shadow: inset 0 0 0 2px #fff; text-transform: lowercase; }
+#eraview .ev-drivers { margin: 0; font-weight: 800; font-size: clamp(18px, 1.8vw, 24px); line-height: 1.3; }
+#eraview .ev-songs { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-weight: 900; font-stretch: 80%; text-transform: lowercase; font-size: clamp(20px, 2.1vw, 30px); line-height: 1.05; }
+#eraview .ev-songs b { display: inline-block; width: 1.4em; opacity: .5; }
+#eraview .ev-songs span { font-stretch: 100%; font-weight: 700; font-size: .55em; text-transform: lowercase; opacity: .7; margin-left: 4px; }
+#eraview .ev-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-content: center; }
+#eraview .ev-photos.many { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+#eraview figure { margin: 0; background: #fff; padding: 10px 10px 34px; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .45); }
+#eraview figure img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+#eraview figure.empty { grid-column: 1 / -1; justify-self: center; width: min(420px, 100%); aspect-ratio: 1; display: grid; place-items: center; text-align: center; padding: 24px; font-size: 16px; line-height: 1.5;
+  background: rgb(255 255 255 / .55); box-shadow: inset 0 0 0 3px rgb(18 18 18 / .35); }
+#eraview .ev-close { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); width: 46px; height: 46px; border-radius: 50%; border: 0; background: transparent; color: #fff; box-shadow: inset 0 0 0 2px #fff; font-size: 20px; font-weight: 900; cursor: pointer; }
+#eraview .ev-nav { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: #121212; }
+#eraview .ev-nav button { border: 2px solid #fff; color: #fff; background: transparent; border-radius: 99px; padding: 8px 16px; font-weight: 800; cursor: pointer; }
+#eraview .ev-nav button:disabled { opacity: .25; cursor: default; }
+@media (max-width: 800px) { #eraview .ev-body { grid-template-columns: minmax(0, 1fr); } }
+/* Title page: the record ring, sized from the window height so the top and bottom records are cut
+   exactly in half by the screen edges, with the title and button in the middle. All lowercase, in
+   Spotify's typeface when it's installed, otherwise Figtree (the closest free match, bundled). */
+.intro { position: fixed; inset: 0; z-index: 50; overflow: hidden; color: #fff; background: #121212;   /* Spotify black */
+  font-family: var(--spotify); transition: opacity .6s ease, transform .6s ease; }
+/* film grain: SVG noise tiled over everything, very faint */
+.intro::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: .07;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.intro.out { opacity: 0; transform: scale(1.06); pointer-events: none; }
+.intro-ring { position: absolute; z-index: 1; left: 50%; top: 50%; width: var(--ring, 120vh); aspect-ratio: 1; transform: translate(-50%, -50%); container-type: inline-size; }
+.intro-ring canvas { position: absolute; inset: calc(var(--pad-px, 0px) * -1); width: calc(100% + 2 * var(--pad-px, 0px)); height: calc(100% + 2 * var(--pad-px, 0px)); display: block; }   /* bigger than the ring so glows have room */
+.intro-mid { position: absolute; inset: 22%; display: grid; place-content: center; justify-items: center; gap: 4.5cqw; text-align: center; }
+.intro-title { margin: 0; font-weight: 900; font-size: min(10.5cqw, 15vw); line-height: .9; letter-spacing: -0.04em; text-transform: lowercase; }
+.intro-go { border: 2px solid #fff; border-radius: 999px; background: transparent; color: #fff; font: 700 max(15px, min(2.2cqw, 4.5vw))/1 var(--spotify);
+  padding: 1em 2.4em; cursor: pointer; text-transform: lowercase; letter-spacing: -0.01em; transition: background .15s ease, color .15s ease, transform .15s ease; }
+.intro-go:hover { background: #fff; color: #121212; }
+.intro-go:active { transform: scale(.97); }
+.intro-go:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.still *, .still *::before, .still *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition: none !important; }
+/* a song's album cover on the right of a page (pages 15 and 16), glowing in its cover's neon */
+.slide > .song-cover { position: absolute; z-index: 1; margin: 0; right: max(5vw, calc((100vw - 1100px) / 2 - 6vw)); top: 50%;
+  transform: translateY(-50%) rotate(-3deg); width: min(30vw, 50vh); aspect-ratio: 1; border-radius: 6px;
+  box-shadow: 0 0 0 3px #121212, 0 0 60px 8px color-mix(in srgb, var(--glow, #ff2d87) 60%, transparent), 0 0 140px 30px color-mix(in srgb, var(--glow, #ff2d87) 30%, transparent); }
+.slide > .song-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block; }
+.slide:has(> .song-cover) > .inner { padding-right: calc(min(30vw, 50vh) + 4vw) !important; }
+@media (max-width: 700px) {
+  .slide > .song-cover { top: auto; bottom: 7vh; right: 50%; transform: translateX(50%) rotate(-3deg); width: min(56vw, 30vh); }
+  .slide:has(> .song-cover) > .inner { padding-right: 0 !important; padding-bottom: 34vh; }
+}
+/* a small album cover in front of a song in a list (pages 10 and 11), so it reads as a song */
+.tr-cover { width: 1.6em; height: 1.6em; border-radius: 4px; object-fit: cover; flex: 0 0 auto; align-self: center;
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--glow, #fff) 55%, transparent); }
+.measuring, .measuring * { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { #eraview { animation: none; } }
+
+/* a slide */
+.slide { position: absolute; inset: 0; padding: 96px max(28px, env(safe-area-inset-right, 0px)) 48px max(28px, env(safe-area-inset-left, 0px)); display: grid; align-content: center; justify-items: start; gap: 18px; }
+.slide > * { position: relative; z-index: 2; }
+.inner { width: min(1100px, 100%); margin: 0 auto; display: grid; gap: 20px; justify-self: center; }
+.kick { font-weight: 800; font-size: clamp(18px, 2vw, 26px); letter-spacing: -0.01em; }
+.huge { font-weight: 900; line-height: .9; letter-spacing: -0.045em; font-size: clamp(80px, 15vw, 260px); text-transform: lowercase; margin: 0; overflow-wrap: break-word; }
+.big { font-weight: 900; line-height: .95; letter-spacing: -0.04em; font-size: clamp(48px, 7vw, 120px); text-transform: lowercase; margin: 0; text-wrap: balance; overflow-wrap: break-word; }
+.mid { font-weight: 900; font-stretch: 80%; line-height: .95; font-size: clamp(30px, 4.4vw, 64px); text-transform: lowercase; margin: 0; text-wrap: balance; }
+.sub { font-weight: 600; font-size: clamp(17px, 1.7vw, 22px); max-width: 40ch; opacity: .85; margin: 0; }
+.tag { display: inline-block; background: var(--fg); color: var(--bg); font-weight: 900; padding: 4px 12px; border-radius: 99px; font-size: 14px; text-transform: lowercase; letter-spacing: .04em; }
+
+/* rise-in motion (content is visible at rest; motion is only a flourish) */
+.rise { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; }
+.d1 { animation-delay: .08s; } .d2 { animation-delay: .16s; } .d3 { animation-delay: .24s; } .d4 { animation-delay: .32s; } .d5 { animation-delay: .4s; }
+@keyframes rise { from { transform: translateY(26px); opacity: .001; } }
+
+/* giant number used as a background pattern */
+
+
+/* ranked list */
+.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(4px, 1vh, 12px); width: 100%; }
+.rank li { display: grid; grid-template-columns: clamp(34px, 4.5vw, 70px) minmax(0, 1fr) auto; align-items: baseline; gap: 14px; font-weight: 900; font-stretch: 75%; text-transform: lowercase; font-size: clamp(26px, 4vw, 58px); line-height: 1; }
+.rank li .n { color: var(--ac); }
+.rank li .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank li .v { font-size: .4em; font-stretch: 100%; font-weight: 700; opacity: .75; }
+.rank li small { display: block; font-size: .42em; font-weight: 700; font-stretch: 100%; text-transform: lowercase; opacity: .75; margin-top: 4px; }
+.rank li:first-child { font-size: clamp(36px, 6vw, 88px); }
+
+.row { display: flex; flex-wrap: wrap; gap: 28px 48px; align-items: center; width: 100%; }
+.grow { flex: 1 1 340px; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--fg); font: 800 13px var(--display); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-weight: 700; font-size: 14px; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 18px; width: 100%; }
+.card { border-radius: 22px; padding: 22px; display: grid; gap: 6px; align-content: start; }
+.card .mid { font-size: clamp(26px, 3vw, 44px); }
+
+.nav-hint { position: absolute; z-index: 5; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); font-weight: 700; font-size: 13px; opacity: .6; background: rgb(18 18 18 / .72); padding: 4px 10px; border-radius: 99px; text-shadow: 0 0 6px #121212; }   /* readable over records */
+.tip { position: fixed; z-index: 20; pointer-events: none; background: #fff; color: #111; padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; }
+
+@media (max-width: 700px) {
+  .slide { padding-top: 104px; align-content: start; }
+  .nav-hint { display: none; }
+  .yearpick { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise, .spin, .bars i.now b { animation: none; }
+}
+</style>
+<!-- each page's own styles (web/slides/*.css) -->
+<link rel="stylesheet" href="slides/01-whole-record.css">
+<link rel="stylesheet" href="slides/02-minutes.css">
+<link rel="stylesheet" href="slides/03-loudest-year.css">
+<link rel="stylesheet" href="slides/04-top-artist.css">
+<link rel="stylesheet" href="slides/05-top-artists.css">
+<link rel="stylesheet" href="slides/06-top-songs.css">
+<link rel="stylesheet" href="slides/07-listening-clock.css">
+<link rel="stylesheet" href="slides/08-biggest-day.css">
+<link rel="stylesheet" href="slides/09-seasons.css">
+<link rel="stylesheet" href="slides/10-saddest-day.css">
+<link rel="stylesheet" href="slides/11-happiest-day.css">
+<link rel="stylesheet" href="slides/12-after-midnight.css">
+<link rel="stylesheet" href="slides/13-eras.css">
+<link rel="stylesheet" href="slides/14-themes.css">
+<link rel="stylesheet" href="slides/15-most-skipped.css">
+<link rel="stylesheet" href="slides/16-fallen-favorite.css">
+<link rel="stylesheet" href="slides/17-taste-change.css">
+<link rel="stylesheet" href="slides/18-places.css">
+<link rel="stylesheet" href="slides/19-end-screen.css">
+<link rel="stylesheet" href="slides/era-page.css">
+</head>
+<body>
+<div class="story" id="story">
+  <div class="bars" id="bars"></div>
+  <div class="top">
+    <div class="yearpick" id="years" role="group" aria-label="Year"></div>
+  </div>
+  <canvas id="trail" aria-hidden="true"></canvas>
+  <div id="slide"></div>
+  <button class="zone prev" id="prev" type="button" aria-label="Previous"></button>
+  <button class="zone next" id="next" type="button" aria-label="Next"></button>
+  <span class="nav-hint">Click or use ← → to flip</span>
+</div>
+<div class="tip" id="tip" hidden></div>
+<section class="intro" id="intro" aria-label="Title">
+  <div class="intro-ring">
+    <canvas id="introRing" aria-hidden="true"></canvas>
+    <div class="intro-mid">
+      <h1 class="intro-title rise">forever,<br>wrapped</h1>
+      <button class="intro-go rise d1" id="introGo" type="button">let's go</button>
+    </div>
+  </div>
+</section>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/land.js"></script>
+<script src="data.js"></script>
+<script src="shapes.js"></script>
+<script src="recordRing.js"></script>
+<script src="core.js"></script>
+<script src="slides/01-whole-record.js"></script>
+<script src="slides/02-minutes.js"></script>
+<script src="slides/03-loudest-year.js"></script>
+<script src="slides/04-top-artist.js"></script>
+<script src="slides/05-top-artists.js"></script>
+<script src="slides/06-top-songs.js"></script>
+<script src="slides/07-listening-clock.js"></script>
+<script src="slides/08-biggest-day.js"></script>
+<script src="slides/09-seasons.js"></script>
+<script src="slides/10-saddest-day.js"></script>
+<script src="slides/11-happiest-day.js"></script>
+<script src="slides/12-after-midnight.js"></script>
+<script src="slides/13-eras.js"></script>
+<script src="slides/14-themes.js"></script>
+<script src="slides/15-most-skipped.js"></script>
+<script src="slides/16-fallen-favorite.js"></script>
+<script src="slides/17-taste-change.js"></script>
+<script src="slides/18-places.js"></script>
+<script src="slides/19-end-screen.js"></script>
+<script src="slides/era-page.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

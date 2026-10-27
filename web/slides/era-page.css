@@ -1,0 +1,55 @@
+/* Styles for era-page.js only. Every rule starts with #eraview so nothing leaks into other pages.
+   The era's pen color (--pen) is the one accent; everything else is white on black. */
+
+/* the records sit on their own canvas behind everything, fixed so they stay put while you scroll */
+#eraview .ev-trail { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; pointer-events: none; }
+#eraview .ev-body, #eraview .ev-nav, #eraview .ev-close { z-index: 2; }
+#eraview .ev-body { position: relative; width: min(1060px, 100% - 24vw); margin-left: max(28px, 6vw); gap: clamp(32px, 4vw, 64px); }   /* left of centre: the records run down the right */
+
+/* text column */
+#eraview .ev-text { gap: 0; container-type: inline-size; }
+#eraview .ev-kick { margin: 0 0 14px; color: var(--pen); font-weight: 800; font-size: clamp(14px, 1.25vw, 18px); letter-spacing: 0; }
+#eraview .ev-name { margin: 0; font-weight: 900; line-height: .9; letter-spacing: -0.045em;
+  font-size: max(30px, min(104px, 6vw, 15vw, 100cqw / (var(--nl, 8) * 0.56))); }   /* the longest word always fits on one line */
+#eraview .ev-tagline { margin: 16px 0 0; max-width: 34em; font-weight: 600; font-size: clamp(15px, 1.3vw, 19px); line-height: 1.35; color: rgb(255 255 255 / .72); }
+#eraview .ev-chips { margin-top: 18px; gap: 6px; }
+#eraview .ev-chips .tag { font-size: 13px; font-weight: 800; padding: 5px 11px; border-radius: 99px; line-height: 1.2; }
+
+/* "what set it off" and "on repeat": a small pen-colored label over each */
+#eraview .ev-sec { margin-top: clamp(20px, 2.6vh, 30px); }
+#eraview .ev-label { margin: 0 0 6px; color: var(--pen); font-weight: 800; font-size: 13px; letter-spacing: .04em; }
+#eraview .ev-drivers { margin: 0; font-weight: 800; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.3; }
+#eraview .ev-songs { gap: 2px; font-size: clamp(19px, 1.9vw, 28px); line-height: 1.12; }
+#eraview .ev-songs li { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+#eraview .ev-songs b { width: 1.1em; flex: none; opacity: 1; color: var(--pen); font-stretch: 100%; }
+#eraview .ev-songs em { font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
+#eraview .ev-songs span { margin-left: 0; flex: 0 1000 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* polaroids: tilted, slightly lifted on hover */
+#eraview .ev-photos { gap: clamp(14px, 1.6vw, 22px); }
+#eraview .ev-photos.many { gap: clamp(10px, 1.2vw, 16px); }
+#eraview figure { transform: rotate(var(--tilt, 0deg)); transition: transform .25s ease; padding: 8px 8px 28px; box-shadow: 0 22px 44px -16px rgb(0 0 0 / .8); }
+#eraview figure:hover { transform: rotate(0deg) scale(1.04); }
+/* until its photo is in, a polaroid is a dark frame with a faint pen tint (never a white flash) */
+#eraview .ev-photos figure:not(.empty) { background: color-mix(in srgb, var(--pen) 14%, #161616); transition: transform .25s ease, background .35s ease; }
+#eraview .ev-photos figure:not(.empty) img { opacity: 0; transition: opacity .35s ease; }
+#eraview .ev-photos figure.loaded { background: #fff; }
+#eraview .ev-photos figure.loaded img { opacity: 1; }
+
+/* buttons: outlined white pills on solid black, so records gliding underneath never show through */
+#eraview .ev-close { background: #121212; }
+#eraview .ev-close:hover { background: #fff; color: #121212; }
+#eraview .ev-nav { background: transparent; pointer-events: none; }
+#eraview .ev-nav button { pointer-events: auto; background: #121212; text-transform: lowercase; transition: background .15s ease, color .15s ease; }
+#eraview .ev-nav button:disabled { opacity: 1; color: rgb(255 255 255 / .28); border-color: rgb(255 255 255 / .28); }
+#eraview .ev-nav button:not(:disabled):hover { background: #fff; color: #121212; }
+
+/* phones: one column, photos in a tight row of three so the whole era fits on one screen */
+@media (max-width: 800px) {
+  #eraview { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); overflow-x: hidden; }
+  #eraview .ev-body { width: 100%; gap: 26px; min-height: 0; }
+  #eraview .ev-photos, #eraview .ev-photos.many { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0 4px; }
+  #eraview figure { padding: 5px 5px 16px; }
+  #eraview .ev-name { font-size: max(30px, min(12vw, 100cqw / (var(--nl, 8) * 0.56))); }
+}
+#eraview:focus { outline: none; }

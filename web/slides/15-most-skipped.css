@@ -1,0 +1,19 @@
+/* Styles for 15-most-skipped.js only. Every rule starts with .ms15 so it can't leak into other pages. */
+.ms15 { width: min(1100px, 100%); gap: 18px; padding-right: 260px; box-sizing: border-box; }
+.ms15 .ms15-title { margin-top: -0.12em; }
+.ms15 .ms15-count { margin-top: 10px; }
+.ms15 .ms15-num { color: var(--ac); }
+
+/* play pips: one per play, the skipped ones lit */
+.ms15 .ms15-pips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 520px; }
+.ms15 .ms15-pips i { width: 14px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .22); }
+.ms15 .ms15-pips i.ms15-on { background: var(--ac); box-shadow: 0 0 8px color-mix(in srgb, var(--ac) 60%, transparent); }
+
+@media (max-aspect-ratio: 4/5) {
+  /* on a phone: sit the text in the middle, above the records along the bottom */
+  .slide:has(.ms15) { align-content: center; padding-bottom: 26vh; }
+  .ms15 { padding-right: 0; gap: 14px; }
+  .ms15 .ms15-title { font-size: clamp(40px, 15vw, 64px) !important; }   /* the shared fit() runs small on a phone */
+  .ms15 .ms15-pips { gap: 5px; max-width: 100%; }
+  .ms15 .ms15-pips i { width: 11px; height: 5px; }
+}

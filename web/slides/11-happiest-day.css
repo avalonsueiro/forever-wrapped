@@ -1,0 +1,22 @@
+/* Styles for 11-happiest-day.js only. Every rule starts with .hd11 so nothing leaks. */
+.slide .inner.hd11 { width: min(1100px, 100%); gap: 18px; justify-items: start; }
+.slide .hd11 > * { max-width: min(680px, 56vw); }
+.slide .hd11 .kick { color: var(--ac); margin: 0; }
+.slide .hd11 .hd11-date { margin: 0; display: grid; font-weight: 900; line-height: .94; letter-spacing: -0.05em;
+  font-size: clamp(64px, 10.5vw, 190px); white-space: nowrap; max-width: none; }
+.slide .hd11 .hd11-year { color: var(--ac); }
+.slide .hd11 .hd11-repeat { margin-top: 10px; display: grid; gap: 10px; }
+.slide .hd11 .hd11-label { margin: 0; font-weight: 800; font-size: 14px; letter-spacing: .08em; opacity: .55; }
+.slide .hd11 ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.slide .hd11 li { display: flex; align-items: baseline; gap: 14px; font-weight: 700; font-size: clamp(18px, 1.7vw, 24px); line-height: 1.2; }
+.slide .hd11 .hd11-n { color: var(--ac); font-weight: 900; min-width: 1ch; }
+
+@media (max-width: 700px) {
+  .slide .hd11 > * { max-width: 100%; }
+  .slide .hd11 .hd11-date { font-size: clamp(56px, 21vw, 96px); }
+  .slide .hd11 li { font-size: 17px; }
+}
+
+/* artist after each song, quiet (like page 10) */
+.slide .hd11 li { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.slide .hd11 .hd11-a { font-weight: 600; font-size: .62em; color: rgb(255 255 255 / .55); }

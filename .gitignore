@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+data/raw/
+data/cache/
+data/out/
+web/data.js
+web/photos/
+era_notes.csv
+
+server/jobs/
+.DS_Store
+web/photos-thumbs/

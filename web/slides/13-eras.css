@@ -1,0 +1,35 @@
+/* Styles for 13-eras.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+
+.slide .ec { gap: clamp(18px, 3.2vh, 34px); }
+.slide .ec-head { display: grid; gap: 12px; max-width: 760px; }
+.slide .ec-head .sub { margin-top: 6px; }
+.slide .ec-big { font-size: clamp(44px, 5.4vw, 92px); }
+
+/* the calendar: white structure at low opacity, highlighter strokes in the era colors */
+.slide .ec-chart svg text.ec-month { font-size: 13px; font-weight: 700; fill-opacity: .45; letter-spacing: .02em; }
+.slide .ec-chart svg text.ec-yr { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; }
+.slide .ec-chart .ec-band { fill: #fff; fill-opacity: .035; }
+.slide .ec-chart .ec-grid { stroke: #fff; stroke-opacity: .1; }
+.slide .ec-chart .ec-ticks { fill: #fff; fill-opacity: .26; }
+.slide .ec-chart .ec-ink { fill: #121212; fill-opacity: .32; pointer-events: none; }
+.slide .ec-chart .ec-labels { pointer-events: none; }
+.slide .ec-chart svg text.ec-lbl { fill: #121212; font-weight: 900; letter-spacing: -0.01em; }
+.slide .ec-chart svg text.ec-lbl .ec-name { font-weight: 700; }
+
+.slide .ec-chart .ec-hl { cursor: pointer; outline: none; }
+.slide .ec-chart .ec-stroke { fill-opacity: .9; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--pen) 55%, transparent));
+  transition: fill-opacity .15s ease, filter .15s ease; }
+.slide .ec-chart .ec-hl:hover .ec-stroke, .slide .ec-chart .ec-hl:focus-visible .ec-stroke { fill-opacity: 1;
+  filter: drop-shadow(0 0 14px var(--pen)); }
+.slide .ec-chart .ec-hl:focus-visible .ec-stroke { stroke: #fff; stroke-width: 2px; }
+
+/* phone: years as columns */
+.slide .ec-chart svg.ec-tall text.ec-yr { font-size: 15px; }
+.slide .ec-chart svg.ec-tall text.ec-month { font-size: 11px; }
+@media (max-width: 700px) {
+  .slide .ec { gap: 16px; }
+  .slide .ec-head { gap: 8px; }
+  .slide .ec-big { font-size: clamp(38px, 11vw, 52px); }
+  .slide .ec .sub { font-size: 15px; }
+}

@@ -1,0 +1,31 @@
+/* Styles for 04-top-artist.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+
+/* text sits in the left part of the screen; the artist photo owns the right side */
+.slide .inner.ta { width: min(1100px, 100%); gap: clamp(14px, 2.4vh, 26px); }
+.slide .ta > * { max-width: 62vw; }
+.slide .ta-kick { margin: 0; }
+.slide .ta-one { color: var(--ac); }
+.slide .ta-name {
+  font-size: calc(var(--k, 1) * min(11vw, 22vh));
+  line-height: .86; letter-spacing: -0.055em;
+  padding-bottom: .1em;
+}
+.slide .ta-sub { opacity: 1; color: rgba(255, 255, 255, .7); }
+.slide .ta-sub b { color: #fff; font-weight: 900; }
+
+/* the artist's Spotify photo, round with an LED glow (positioned against the screen, not the text) */
+.slide > .ta-photo { position: absolute; z-index: 1; margin: 0; right: max(5vw, calc((100vw - 1100px) / 2 - 4vw));
+  top: 50%; transform: translateY(-50%); width: min(40vw, 62vh); aspect-ratio: 1; border-radius: 50%;
+  box-shadow: 0 0 0 3px #121212, 0 0 60px 6px rgb(255 46 46 / .55), 0 0 140px 30px rgb(255 45 135 / .35); }
+.slide > .ta-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.slide:has(> .ta-photo) .ta > * { max-width: min(52vw, 100% - min(40vw, 62vh)); }
+
+@media (max-width: 700px) {
+  .slide .ta > * { max-width: 100%; }
+  .slide .ta-name { font-size: calc(var(--k, 1) * 17vw); }
+  .slide:has(> .ta-photo) .ta > * { max-width: 100%; }
+  /* text up top, photo underneath */
+  .slide:has(> .ta) { align-content: start; padding-top: 18vh; }
+  .slide > .ta-photo { top: auto; bottom: 9vh; right: 50%; transform: translateX(50%); width: min(70vw, 42vh); }
+}

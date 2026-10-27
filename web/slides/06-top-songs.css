@@ -1,0 +1,47 @@
+/* Styles for 06-top-songs.js only. Every rule starts with .ts so it can't leak into other pages. */
+
+/* leave room at the bottom for the wave of records */
+.slide .ts { width: min(1100px, calc(100vw - 56px)); gap: clamp(6px, 1.2vh, 14px); margin-bottom: clamp(70px, 15vh, 170px); }
+
+.slide .ts-list { list-style: none; margin: 0; padding: 0; display: grid; width: 100%; }
+
+.slide .ts-row { position: relative; display: grid; grid-template-columns: clamp(40px, 5vw, 84px) minmax(0, 1fr) auto;
+  align-items: baseline; column-gap: clamp(12px, 1.6vw, 24px);
+  padding: clamp(8px, 1.5vh, 16px) 0 clamp(10px, 1.7vh, 18px);
+  font-weight: 900; font-stretch: 75%; line-height: 1; letter-spacing: -0.03em;
+  font-size: clamp(24px, min(3.1vw, 5.2vh), 46px); }
+
+/* number #1 gets the big treatment */
+.slide .ts-row:first-child { font-size: clamp(36px, min(5.6vw, 9.5vh), 92px); letter-spacing: -0.045em; padding-top: 0; padding-bottom: clamp(14px, 2.4vh, 26px); }
+.slide .ts-row:first-child .ts-n { font-size: 1.15em; }
+
+.slide .ts-n { color: var(--ac); font-variant-numeric: tabular-nums; }
+.slide .ts-t { min-width: 0; }
+.slide .ts-t b { display: block; font-weight: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slide .ts-t small { display: block; margin-top: .3em; font-size: max(13px, .4em); font-weight: 700; font-stretch: 100%;
+  letter-spacing: -0.01em; opacity: .7; overflow: hidden; text-overflow: ellipsis; }
+.slide .ts-row:first-child .ts-t small { font-size: max(15px, .3em); opacity: .8; }
+
+.slide .ts-v { font-size: max(15px, .5em); font-weight: 800; font-stretch: 100%; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.slide .ts-row:first-child .ts-v { color: var(--ac); font-size: max(17px, .38em); }
+.slide .ts-v em { font-style: normal; font-weight: 600; opacity: .7; }
+
+/* baseline rule plus a lemon bar sized by plays */
+.slide .ts-row::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #fff; opacity: .14; }
+.slide .ts-bar { position: absolute; left: 0; bottom: 0; height: 2px; width: var(--w); background: var(--ac); z-index: 1;
+  transform-origin: left; animation: ts-grow 1s .5s cubic-bezier(.2,.8,.2,1) both; }
+.slide .ts-row:first-child .ts-bar { height: 4px; bottom: -1px; }
+@keyframes ts-grow { from { transform: scaleX(0); } }
+
+@media (max-width: 700px) {
+  .slide .ts { margin-bottom: 0; gap: 10px; }
+  .slide .ts-row { grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 10px; font-size: 26px; padding: 14px 0 16px; }
+  .slide .ts-row:first-child { font-size: 40px; padding-bottom: 18px; }
+  .slide .ts-row:first-child .ts-n { font-size: 1em; }
+  /* the #1 title may take two lines on a phone instead of being cut short */
+  .slide .ts-row:first-child .ts-t b { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: .95; }
+  .slide .ts-t small { font-size: 13px; }
+  .slide .ts-row:first-child .ts-t small { font-size: 15px; }
+  .slide .ts-v, .slide .ts-row:first-child .ts-v { font-size: 14px; }
+  .slide .ts-v em { display: none; }
+}

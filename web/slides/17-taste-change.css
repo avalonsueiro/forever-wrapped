@@ -1,0 +1,26 @@
+/* Styles for 17-taste-change.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+
+/* sized by height too, so the text stays between the two record branches */
+.slide .inner.tc { width: min(1100px, 100%); gap: clamp(12px, 2.2vh, 24px); }
+.slide .tc-kick { margin: 0; }
+.slide .tc-years { font-size: min(14vw, 25vh); line-height: .86; letter-spacing: -0.055em; white-space: nowrap; }
+.slide .tc-arrow { color: var(--ac); font-weight: 700; margin: 0 .02em; letter-spacing: 0; }
+
+.slide .tc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px clamp(28px, 5vw, 72px); margin-top: clamp(6px, 1.4vh, 16px); }
+.slide .tc-col { display: grid; gap: clamp(10px, 1.6vh, 16px); align-content: start; justify-items: start; min-width: 0; }
+.slide .tc-tag { font-size: 15px; padding: 5px 14px; }
+.slide .tc-in .tc-tag { background: var(--ac); color: #121212; }
+.slide .tc-out .tc-tag { background: transparent; color: #fff; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55); }
+.slide .tc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .08em;
+  font-weight: 900; font-stretch: 80%; line-height: .98; letter-spacing: -0.03em;
+  font-size: min(4.3vw, 6.8vh, 64px); text-transform: lowercase; }
+.slide .tc-list li { overflow-wrap: anywhere; }
+.slide .tc-out .tc-list { color: rgba(255, 255, 255, .42); }
+.slide .tc-out .tc-list li { text-decoration: line-through; text-decoration-thickness: .06em; text-decoration-color: rgba(255, 255, 255, .3); }
+
+@media (max-width: 700px) {
+  .slide .tc-years { font-size: 19vw; }
+  .slide .tc-cols { grid-template-columns: 1fr; gap: 26px; }
+  .slide .tc-list { font-size: 9vw; }
+}

@@ -1,0 +1,38 @@
+/* Styles for 03-loudest-year.js only. Every rule starts with .ly-wrap so nothing leaks. */
+.ly-wrap { --ly-h: clamp(170px, 30vh, 320px); gap: clamp(18px, 3.5vh, 40px); }
+.ly-wrap .ly-head { display: grid; gap: clamp(8px, 1.4vh, 16px); justify-items: start; }
+.ly-wrap .ly-head .huge { font-size: clamp(80px, min(15vw, 27vh), 260px); }
+.ly-wrap .ly-hours { margin: 0; font-weight: 800; font-size: clamp(20px, 2.4vw, 34px); letter-spacing: -0.02em; opacity: .9; }
+.ly-wrap .ly-hours b { color: var(--ac); font-weight: 900; }
+
+/* the chart: one column per year, bars grow up from a thin baseline */
+.ly-wrap .ly-bars { width: 100%; height: var(--ly-h); display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: clamp(6px, 1.6vw, 22px); align-items: end; border-bottom: 2px solid rgba(255, 255, 255, .2); padding-bottom: 0; position: relative; }
+.ly-wrap .ly-col { position: relative; height: 100%; min-width: 0; }
+.ly-wrap .ly-track { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+.ly-wrap .ly-bar { display: block; height: calc(var(--p) * (var(--ly-h) - 38px)); min-height: 0; border-radius: clamp(6px, 1vw, 12px) clamp(6px, 1vw, 12px) 0 0;
+  background: rgba(255, 255, 255, .16); transform-origin: bottom; animation: ly-grow .9s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.25s + var(--k) * .07s); }
+.ly-wrap .ly-v { text-align: center; font-weight: 800; font-size: clamp(12px, 1.3vw, 18px); padding-bottom: 8px; opacity: .75; white-space: nowrap; }
+.ly-wrap .ly-y { position: absolute; left: 0; right: 0; top: calc(100% + 10px); text-align: center; font-weight: 800; font-size: clamp(12px, 1.3vw, 18px); opacity: .6; }
+
+/* the loudest year: the one bar in the accent, with its label in white */
+.ly-wrap .ly-top .ly-bar { background: var(--ac); box-shadow: 0 0 40px -6px var(--ac); }
+.ly-wrap .ly-top .ly-v, .ly-wrap .ly-top .ly-y { opacity: 1; color: #fff; font-weight: 900; }
+.ly-wrap .ly-top .ly-v { font-size: clamp(14px, 1.6vw, 22px); }
+/* the year picked in the top right, if it isn't the loudest */
+.ly-wrap .ly-picked .ly-bar { background: rgba(255, 255, 255, .34); }
+.ly-wrap .ly-picked .ly-v, .ly-wrap .ly-picked .ly-y { opacity: 1; }
+.ly-wrap .ly-zero .ly-v { opacity: .35; }
+
+@keyframes ly-grow { from { transform: scaleY(0); } }
+
+/* leave room under the baseline for the year labels */
+.ly-wrap { padding-bottom: 32px; }
+@media (max-width: 700px) {
+  .ly-wrap { --ly-h: clamp(170px, 30vh, 260px); }
+  .ly-wrap .ly-head .huge { font-size: clamp(88px, 28vw, 140px); }
+}
+
+/* "2026 is on track to beat it": only when the current year is ahead of the loudest year's pace */
+.ly-wrap .ly-pace { margin: 6px 0 0; font-weight: 700; font-size: clamp(16px, 1.6vw, 22px); color: rgb(255 255 255 / .7); }
+.ly-wrap .ly-pace b { color: var(--ac); font-weight: 900; }

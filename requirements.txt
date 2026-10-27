@@ -1,0 +1,14 @@
+pandas>=2.0
+numpy>=1.24
+requests>=2.31
+anthropic>=0.40
+python-dotenv>=1.0
+maxminddb>=2.4   # only needed for city-level map
+osxphotos>=0.68; sys_platform == "darwin"   # only for `run.py photos` (reads the Mac Photos library)
+reverse_geocoder>=1.5   # only for `run.py photos` (offline GPS to city lookup)
+pillow>=10              # reads album cover colors for the record glows (build step)
+# the upload server (server/app.py): lets other people build their own site
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9
+pillow-heif>=0.16       # reads iPhone .HEIC photos

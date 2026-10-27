@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- Used by shoot.sh: shows a page in a frame of an exact size, because headless Chrome won't make
+     its window narrower than 500px and takes some height for a hidden toolbar. ?w=390&h=844&src=... -->
+<meta charset="utf-8">
+<style>html, body { margin: 0; background: #121212; } iframe { border: 0; display: block; position: absolute; }</style>
+<iframe id="f"></iframe>
+<script>
+  const q = new URLSearchParams(location.search), f = document.getElementById("f");
+  // centered in the picture (not the visible area), so cropping the middle w x h of the picture gets it exactly
+  const w = +q.get("w"), h = +q.get("h"), W = +q.get("W"), H = +q.get("H");
+  Object.assign(f.style, { width: w + "px", height: h + "px", left: (W - w) / 2 + "px", top: (H - h) / 2 + "px" });
+  f.src = q.get("src");
+</script>

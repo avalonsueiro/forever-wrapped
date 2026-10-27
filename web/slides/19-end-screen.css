@@ -1,0 +1,35 @@
+/* Styles for 19-end-screen.js only. Every rule starts with an .es- class from that page. */
+
+/* the card's height comes from the window, so it never needs shrinking to fit */
+.es-stage { --es-h: min(calc(100dvh - 140px), 980px); width: 100%; display: grid; place-items: center; }
+.es-card {
+  height: var(--es-h); width: min(calc(var(--es-h) * 9 / 16), 100%);
+  container-type: size; position: relative; overflow: hidden; border-radius: 26px;
+  background: #1a1a1a; border: 1.5px solid rgba(255, 255, 255, .16); box-shadow: 0 30px 90px rgba(0, 0, 0, .7);
+  padding: calc(var(--es-h) * .055) calc(var(--es-h) * .05);
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;
+  color: #fff; text-transform: lowercase;
+}
+.es-card p, .es-card h1, .es-card figure { margin: 0; }
+
+.es-span { font-weight: 900; color: var(--ac); font-size: min(3.4cqh, 6.4cqw); letter-spacing: -.02em; }
+
+/* four covers in a 2 x 2 grid, each glowing in its own neon, with a label and a name */
+.es-covers { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 3cqh 6cqw; }
+.es-tile { display: grid; justify-items: center; gap: 1cqh; min-width: 0; }
+.es-tile img { width: min(19cqh, 36cqw); aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block;
+  box-shadow: 0 0 30px 4px color-mix(in srgb, var(--glow) 55%, transparent); }
+.es-tile.es-round img { border-radius: 50%; }
+.es-tile figcaption { display: grid; gap: .15em; max-width: 100%; }
+.es-tile figcaption span { font-weight: 700; font-size: min(1.8cqh, 3.4cqw); color: rgb(255 255 255 / .55); }
+.es-tile figcaption b { font-weight: 800; font-size: min(2.3cqh, 4.3cqw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* the identity, huge */
+.es-id { font-weight: 900; letter-spacing: -.045em; line-height: .9; font-size: min(7cqh, 13cqw); text-wrap: balance; }
+
+/* three numbers, big, one word each */
+.es-stats { width: 100%; display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 2cqw; }
+.es-stat { display: grid; gap: .3em; }
+.es-stat b { font-weight: 900; letter-spacing: -.045em; line-height: .9; font-size: min(6.4cqh, 11.5cqw); }
+.es-stat:nth-child(2) b { color: var(--ac); }
+.es-stat span { font-weight: 700; font-size: min(2.5cqh, 4.6cqw); color: rgb(255 255 255 / .6); }

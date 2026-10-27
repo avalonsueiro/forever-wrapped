@@ -1,0 +1,32 @@
+/* Styles for 09-seasons.js only. Prefix every rule with a class or id from that page
+   (e.g. .slide .my-thing) so it can't leak into other pages. */
+
+/* keep the content up out of the way of the four hills of records along the bottom */
+.slide:has(> .ssn) { padding-bottom: clamp(110px, 17vh, 200px); }
+
+.ssn-row { gap: 28px clamp(40px, 6vw, 96px); flex-wrap: nowrap; }
+.ssn-text { display: grid; gap: 14px; }
+.ssn-head { margin-bottom: clamp(6px, 1.6vh, 16px); }
+
+.ssn-list { display: grid; gap: clamp(4px, 1vh, 10px); }
+.ssn-line { display: grid; justify-content: start; grid-template-columns: 4.2em 10px max-content max-content; align-items: center; gap: 12px;
+  font-weight: 900; font-stretch: 80%; letter-spacing: -0.02em; line-height: 1; font-size: clamp(22px, 2.3vw, 34px); }
+.ssn-line .ssn-s { opacity: .55; }
+.ssn-line.ssn-lead .ssn-s { opacity: 1; }
+.ssn-line i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+
+.ssn-wheel { flex: 0 0 auto; width: min(530px, 58vh, 44vw); min-width: 0; }
+.ssn-wheel text.ssn-label { font: 800 22px var(--display); fill: #fff; opacity: .5; letter-spacing: -0.01em; }
+.ssn-wheel text.ssn-label.on { opacity: 1; }
+
+@media (max-width: 700px) {
+  .slide:has(> .ssn) { padding-bottom: 96px; }
+  .ssn-row { flex-wrap: wrap; gap: 18px; }
+  .ssn-text { gap: 10px; }
+  .ssn-head { font-size: clamp(40px, 12vw, 56px); }
+  .ssn-line { font-size: 22px; gap: 10px; }
+  .ssn-wheel { width: min(100%, 330px, 42vh); margin: 0 auto; }
+}
+
+/* share of that season's listening, small and quiet after the group name */
+.slide .ssn .ssn-pct { margin-left: .4em; font-size: .5em; font-weight: 700; color: rgb(255 255 255 / .55); align-self: center; }

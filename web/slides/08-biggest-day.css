@@ -1,0 +1,22 @@
+/* Styles for 08-biggest-day.js only. Every rule starts with .bd8 so nothing leaks. */
+.slide .inner.bd8 { width: min(1100px, 100%); gap: 14px; justify-items: start; }
+.slide .bd8 > * { max-width: min(640px, 58vw); }
+.slide .bd8 .kick { color: var(--ac); }
+/* the hero: the minutes, with what they mean right under them */
+.slide .bd8 .bd8-mins { margin: 0; display: grid; font-weight: 900; letter-spacing: -0.05em; line-height: .82; }
+.slide .bd8 .bd8-num { font-size: clamp(96px, min(16vw, 28vh), 240px); color: var(--ac); }
+.slide .bd8 .bd8-unit { font-size: clamp(22px, min(2.6vw, 4.4vh), 40px); letter-spacing: -0.02em; line-height: 1.1; margin-top: .25em; }
+/* the date, in a calm sentence */
+.slide .bd8 .bd8-when { margin: 6px 0 0; font-weight: 600; font-size: clamp(17px, 1.7vw, 24px); color: rgb(255 255 255 / .7); }
+.slide .bd8 .bd8-when b { color: #fff; font-weight: 800; }
+.slide .bd8 .bd8-chart { width: min(560px, 100%); margin-top: 10px; }
+.slide .bd8 .bd8-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.slide .bd8 .bd8-chart svg text { font-size: 13px; }
+.slide .bd8 .bd8-streak { margin: 4px 0 0; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); opacity: .85; }
+.slide .bd8 .bd8-streak b { font-weight: 900; color: var(--ac); }
+
+@media (max-width: 700px) {
+  .slide .bd8 > * { max-width: 100%; }
+  .slide .bd8 .bd8-num { font-size: clamp(88px, 34vw, 150px); }
+  .slide .bd8 .bd8-chart { width: 100%; }
+}
