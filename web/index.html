@@ -225,33 +225,14 @@ svg text { fill: var(--fg); font: 800 13px var(--display); }
   </div>
 </section>
 
-<script src="vendor/d3.min.js"></script>
-<script src="vendor/topojson-client.min.js"></script>
-<script src="vendor/land.js"></script>
-<script src="data.js"></script>
-<script src="shapes.js"></script>
-<script src="recordRing.js"></script>
-<script src="core.js"></script>
-<script src="slides/01-whole-record.js"></script>
-<script src="slides/02-minutes.js"></script>
-<script src="slides/03-loudest-year.js"></script>
-<script src="slides/04-top-artist.js"></script>
-<script src="slides/05-top-artists.js"></script>
-<script src="slides/06-top-songs.js"></script>
-<script src="slides/07-listening-clock.js"></script>
-<script src="slides/08-biggest-day.js"></script>
-<script src="slides/09-seasons.js"></script>
-<script src="slides/10-saddest-day.js"></script>
-<script src="slides/11-happiest-day.js"></script>
-<script src="slides/12-after-midnight.js"></script>
-<script src="slides/13-eras.js"></script>
-<script src="slides/14-themes.js"></script>
-<script src="slides/15-most-skipped.js"></script>
-<script src="slides/16-fallen-favorite.js"></script>
-<script src="slides/17-taste-change.js"></script>
-<script src="slides/18-places.js"></script>
-<script src="slides/19-end-screen.js"></script>
-<script src="slides/era-page.js"></script>
-<script src="app.js"></script>
+<script>
+// Load every script with a fresh ?v= so Chrome never reuses an old copy after a rebuild
+// (opened straight from the file, a normal reload can keep stale data.js or page code).
+(() => {
+  const v = Date.now();
+  ["vendor/d3.min.js", "vendor/topojson-client.min.js", "vendor/land.js", "data.js", "shapes.js", "recordRing.js", "core.js", "slides/01-whole-record.js", "slides/02-minutes.js", "slides/03-loudest-year.js", "slides/04-top-artist.js", "slides/05-top-artists.js", "slides/06-top-songs.js", "slides/07-listening-clock.js", "slides/08-biggest-day.js", "slides/09-seasons.js", "slides/10-saddest-day.js", "slides/11-happiest-day.js", "slides/12-after-midnight.js", "slides/13-eras.js", "slides/14-themes.js", "slides/15-most-skipped.js", "slides/16-fallen-favorite.js", "slides/17-taste-change.js", "slides/18-places.js", "slides/19-end-screen.js", "slides/era-page.js", "app.js"]
+    .forEach(src => document.write(`<script src="${src}?v=${v}"><\/script>`));
+})();
+</script>
 </body>
 </html>
