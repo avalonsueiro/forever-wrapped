@@ -44,6 +44,16 @@ def neon_for(path):
     return max(votes, key=votes.get)
 
 
+_missed = []
+def _miss(key, err):
+    """Say which covers couldn't be found, but only the first few (offline, every one would fail)."""
+    _missed.append(key)
+    if len(_missed) <= 3:
+        print(f"  note: no cover for {key} ({type(err).__name__})")
+    elif len(_missed) in (4, 50, 500):
+        print(f"  note: {len(_missed)} covers missing so far (offline? songs without a Spotify page?)")
+
+
 def _slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60] or "album"
 
@@ -81,7 +91,7 @@ def era_covers(df, eras, per_era=12):
                     cache[key] = _fetch(key, uri)
                     new += 1
                 except Exception as ex:
-                    print(f"  note: no cover for {key} ({type(ex).__name__})")
+                    _miss(key, ex)
                     continue
             if cache.get(key):
                 out.append({"src": cache[key], "glow": neon_for(config.WEB_DIR / cache[key]), "album": album, "artist": artist})
@@ -105,7 +115,7 @@ def song_cover(df, track, artist):
             cache[key] = _fetch(key, sub["track_uri"].mode().iat[0])
             CACHE.write_text(json.dumps(cache, indent=1, ensure_ascii=False))
         except Exception as e:
-            print(f"  note: no cover for {key} ({type(e).__name__})")
+            _miss(key, e)
             return None
     return {"src": cache[key], "glow": neon_for(config.WEB_DIR / cache[key])} if cache.get(key) else None
 
@@ -123,7 +133,7 @@ def year_albums(df):
             try:
                 cache[key] = _fetch(key, uri); new += 1
             except Exception as e:
-                print(f"  note: no cover for {key} ({type(e).__name__})"); continue
+                _miss(key, e); continue
         if cache.get(key):
             out[int(y)] = {"src": cache[key], "glow": neon_for(config.WEB_DIR / cache[key]), "album": album, "artist": artist}
     if new:
@@ -145,7 +155,7 @@ def album_covers(df):
                 cache[key] = _fetch(key, uri)
                 new += 1
             except Exception as e:                 # offline etc.: try again next build
-                print(f"  note: no cover for {key} ({type(e).__name__})")
+                _miss(key, e)
                 continue
         if cache.get(key) and cache[key] not in [c["src"] for c in out]:
             out.append({"src": cache[key], "glow": neon_for(config.WEB_DIR / cache[key]), "album": album, "artist": artist})

@@ -1,6 +1,6 @@
 """
-Photos for the upload server: the same idea as step 6 (photos per era, and where you were), but from
-photo files someone uploaded instead of the Mac Photos app.
+Photos from a folder (`python run.py photos --folder PATH`): the same idea as step 6 (photos per era,
+and where you were), but from photo files instead of the Mac Photos app, so it works on any computer.
 
 Each photo's date and GPS come from the information stored inside the file (EXIF). Photos without a
 date are skipped. Up to 6 per era are picked, spread evenly across the era, saved as JPEGs (iPhone
@@ -52,11 +52,11 @@ def read_photo(path: Path):
     return {"path": path, "taken": taken, "gps": _gps(exif)} if taken else None
 
 
-def run(upload_dir: Path):
+def run(photo_dir: Path):
     eras = json.loads(config.ERAS_CACHE.read_text())["eras"] if config.ERAS_CACHE.exists() else []
-    files = [p for p in Path(upload_dir).rglob("*") if p.suffix.lower() in IMAGE_EXTS]
+    files = [p for p in Path(photo_dir).rglob("*") if p.suffix.lower() in IMAGE_EXTS]
     photos = [r for r in map(read_photo, files) if r]
-    print(f"  {len(files)} photos uploaded, {len(photos)} with a date")
+    print(f"  {len(files)} photos found, {len(photos)} with a date")
 
     by_day = {}                                     # where each photo-day was, from GPS
     located = [p for p in photos if p["gps"]]

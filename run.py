@@ -9,14 +9,29 @@ Forever, Wrapped: run the pipeline one step at a time, or all at once.
     python run.py eras   --mode live     # 4. find eras, Claude names them    (live | mock)
     python run.py build                  # 5. compute every chart -> web/data.js
     python run.py photos [--ai]          # 6. (Mac) pick era photos from Photos + where you were, then build again
+    python run.py photos --folder PATH   # 6. (any computer) the same, from a folder of photo files
     python run.py all    --mode mock     # every step in order
 
-Add --limit 50 to lyrics/tag to try just your 50 most-played songs first.
+Add --limit 50 to lyrics/tag to try just your 50 most-played songs first. Before tagging spends
+anything, it prints the rough cost and asks; --yes skips the question.
 Everything is cached in data/cache, so any step can be stopped and rerun safely.
 """
 import argparse
 import time
-from wrapped import step0_sample, step1_load, step2_lyrics, step3_tag, step3b_research, step4_eras, step5_build, step6_photos
+from pathlib import Path
+from wrapped import step0_sample, step1_load, step2_lyrics, step3_tag, step3b_research, step4_eras, step5_build
+
+
+def photos(folder, ai):
+    if folder:
+        from wrapped import job_photos
+        if not folder.is_dir():
+            raise SystemExit(f"  no folder at {folder}")
+        job_photos.run(folder)
+    else:
+        from wrapped import step6_photos      # needs osxphotos, so only loaded on a Mac
+        step6_photos.run(ai)
+    step5_build.run()                         # lay the photos out on the era pages
 
 
 def main():
@@ -29,16 +44,19 @@ def main():
     p.add_argument("--redo", nargs="+", default=None, metavar="MOOD",
                    help="with `tag`: tag songs with these moods again, e.g. --redo hyped")
     p.add_argument("--ai", action="store_true", help="with `photos`: let Claude choose among the best candidates")
+    p.add_argument("--folder", type=Path, default=None,
+                   help="with `photos`: use the photo files in this folder instead of the Mac Photos app")
+    p.add_argument("--yes", action="store_true", help="with `tag`: don't ask before spending money")
     a = p.parse_args()
 
     steps = {
         "sample": lambda: step0_sample.run(),
         "load": lambda: step1_load.run(),
         "lyrics": lambda: step2_lyrics.run(a.limit, "mock" if a.mode == "mock" else "live"),
-        "tag": lambda: step3b_research.run(a.limit) if a.research_missing else step3_tag.run(a.mode, a.limit, a.redo),
+        "tag": lambda: step3b_research.run(a.limit) if a.research_missing else step3_tag.run(a.mode, a.limit, a.redo, a.yes),
         "eras": lambda: step4_eras.run("mock" if a.mode == "mock" else "live"),
         "build": lambda: step5_build.run(),
-        "photos": lambda: step6_photos.run(a.ai),
+        "photos": lambda: photos(a.folder, a.ai),
     }
     order = ["load", "lyrics", "tag", "eras", "build"] if a.step == "all" else [a.step]
     for name in order:

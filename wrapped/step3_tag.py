@@ -135,7 +135,32 @@ def mock_tags(row, basis: str, truth: dict) -> dict:
             "intensity": rng.randint(2, 9), "language": "en"}
 
 
-def run(mode: str = "live", limit: int | None = None, redo: list[str] | None = None):
+# Rough cost per song on Haiku 4.5 ($1 / $5 per million input / output tokens): the prompt plus up to
+# MAX_LYRIC_CHARS of lyrics is about 1,950 tokens in, the answer about 120 out. Batch is half price.
+COST_PER_SONG = {"lyrics": 0.0026, "metadata": 0.0015}
+
+
+def confirm_cost(todo_with_lyrics: int, todo_without: int, mode: str, assume_yes: bool) -> None:
+    """Print what tagging will roughly cost and ask before spending anything."""
+    cost = todo_with_lyrics * COST_PER_SONG["lyrics"] + todo_without * COST_PER_SONG["metadata"]
+    if mode == "batch":
+        cost /= 2
+    note = "" if config.TAG_MODEL.startswith("claude-haiku-4-5") else f" (priced as Haiku 4.5; you set {config.TAG_MODEL})"
+    print(f"  this will cost about ${cost:,.2f} on your Anthropic account{note}")
+    if assume_yes or cost < 0.50:
+        return
+    import sys
+    if not sys.stdin.isatty():
+        raise SystemExit("  stopping: add --yes to run without being asked")
+    try:
+        answer = input("  go ahead? [y/N] ")
+    except (EOFError, KeyboardInterrupt):
+        answer = ""
+    if answer.strip().lower() not in ("y", "yes"):
+        raise SystemExit("  stopped, nothing was spent")
+
+
+def run(mode: str = "live", limit: int | None = None, redo: list[str] | None = None, assume_yes: bool = False):
     """redo: moods to tag again, e.g. ["hyped"] after tightening what hyped means. Songs currently
     tagged with one of them are sent again (web-researched songs are left alone)."""
     tracks = pd.read_csv(config.TRACKS_FILE)
@@ -169,6 +194,7 @@ def run(mode: str = "live", limit: int | None = None, redo: list[str] | None = N
     import anthropic
     if not config.ANTHROPIC_API_KEY:
         raise SystemExit("ANTHROPIC_API_KEY is not set. Add it to .env (see .env.example) or use --mode mock.")
+    confirm_cost(with_lyrics, len(todo) - with_lyrics, mode, assume_yes)
     client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
 
     if mode == "live":

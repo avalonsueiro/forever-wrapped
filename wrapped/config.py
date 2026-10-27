@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 
-# WRAPPED_HOME: run the whole pipeline in another person's folder (used by the upload server, one
-# folder per person). Their data, caches and site all live there, and this project's .env (your own
-# API key) is NOT loaded: they bring their own key in ANTHROPIC_API_KEY.
+# WRAPPED_HOME: run the whole pipeline in another folder (say, a friend's export kept apart from
+# yours). Their data, caches and site all live there, and this project's .env is NOT loaded, so set
+# ANTHROPIC_API_KEY yourself.
 JOB_HOME = os.getenv("WRAPPED_HOME")
 if not JOB_HOME:
     try:

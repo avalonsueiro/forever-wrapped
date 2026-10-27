@@ -11,3 +11,11 @@ era_notes.csv
 server/jobs/
 .DS_Store
 web/photos-thumbs/
+
+# made by the build from your own listening: your top albums and artists
+web/covers/
+web/artists/
+# your own mood corrections (copy mood_overrides.example.csv to start one)
+mood_overrides.csv
+# screenshots of your own site
+review/

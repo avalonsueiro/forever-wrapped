@@ -379,4 +379,4 @@ def run(use_ai: bool = False):
             f.write("\n".join(new_log) + "\n")
     update_notes(places)
     print(f"  saved places to {config.ERA_NOTES.name} (your own lived_in entries were kept). "
-          f"Check it, then run `python run.py build`.")
+          f"If you edit it, run `python run.py build` again.")

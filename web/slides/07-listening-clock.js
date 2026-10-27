@@ -14,7 +14,7 @@ defineSlide("listening-clock", () => {
     const peak = d3.maxIndex(hrs);
     const persona = peak >= 21 || peak < 4 ? "Night owl" : peak < 10 ? "Early bird" : peak < 17 ? "Daytime listener" : "Evening listener";
     return { theme: "violet", html: `<div class="inner lc"><div class="lc-row">
-      <div class="lc-text"><p class="kick rise">You're a</p><h1 class="big lc-big rise d1">${persona}</h1>
+      <div class="lc-text"><p class="kick rise">You're ${/^[aeiou]/i.test(persona) ? "an" : "a"}</p><h1 class="big lc-big rise d1">${persona}</h1>
       <p class="sub rise d2">Your peak hour ${when()}: <b class="lc-peak">${hourLabel(peak)}</b>.</p></div>
       <div class="chart lc-clock rise d2" id="clock"></div></div></div>`,
       trail: clockTrail,
