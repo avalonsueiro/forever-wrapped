@@ -8,6 +8,7 @@ Each function below builds the data for one screen. They are independent, so if 
 how a chart works, find its function here and edit just that part. All time values are local time.
 """
 import json
+from datetime import date
 import numpy as np
 import pandas as pd
 from . import config
@@ -223,15 +224,35 @@ def theme_timeline(df):
     tm = tm[list(top) + ["other"]]
     # example songs per theme: your most-played songs about it, each song's minutes split across
     # its themes (like the chart), so songs that are mostly about the theme come first
-    songs = df[df["tagged"] & (df["themes"].map(len) > 0)].groupby(["track", "artist"]).agg(
-        minutes=("minutes", "sum"), themes=("themes", "first")).reset_index()
-    songs["share"] = songs["minutes"] / songs["themes"].map(len)
-    examples = {}
-    for t in top:
-        hit = songs[songs["themes"].map(lambda ts: t in ts)].nlargest(8, "share")
-        examples[t] = [{"track": x.track, "artist": x.artist, "minutes": r(x.minutes)} for x in hit.itertuples()]
+    def examples_for(sub, themes):
+        songs = sub[sub["tagged"] & (sub["themes"].map(len) > 0)].groupby(["track", "artist"]).agg(
+            minutes=("minutes", "sum"), themes=("themes", "first")).reset_index()
+        songs["share"] = songs["minutes"] / songs["themes"].map(len)
+        out = {}
+        for t in themes:
+            hit = songs[songs["themes"].map(lambda ts: t in ts)].nlargest(8, "share")
+            out[t] = [{"track": x.track, "artist": x.artist, "minutes": r(x.minutes)} for x in hit.itertuples()]
+        return out
+
+    # one year: the same stream week by week (a year of months is too few points to flow), with that
+    # year's own top themes and songs; years with too little tagged listening are left out
+    by_year = {}
+    for y, sub in df[df["tagged"]].groupby("year"):
+        if sub["minutes"].sum() < 600:
+            continue
+        wk = theme_minutes(sub, "week_of_year").reindex(range(1, 53), fill_value=0)
+        busy = wk.sum(axis=1) > 0
+        wk = wk.loc[busy.idxmax(): busy[::-1].idxmax()]            # from the first week you listened to the last
+        if len(wk) < 6:
+            continue
+        ytop = wk.sum().nlargest(6).index
+        wk = wk[ytop].rolling(3, center=True, min_periods=1).mean()   # a little smoothing between weeks
+        by_year[int(y)] = {"weeks": [max(date.fromisocalendar(int(y), int(w), 1), date(int(y), 1, 1)).isoformat() for w in wk.index],
+                           "themes": list(ytop), "series": {t: [r(v) for v in wk[t]] for t in ytop},
+                           "examples": examples_for(sub, ytop)}
     return {"months": tm.index.tolist(), "themes": list(tm.columns),
-            "series": {t: [r(v) for v in tm[t]] for t in tm.columns}, "examples": examples}
+            "series": {t: [r(v) for v in tm[t]] for t in tm.columns}, "examples": examples_for(df, top),
+            "by_year": by_year}
 
 
 # ---------------------------------------------------------------- 10: top artists / songs + bump chart
@@ -274,10 +295,10 @@ def skips(df):
     }
 
 
-def fallen_favorites(df):
+def fallen_favorites(df, min_plays=None):
     out = []
     for (track, artist), sub in df.groupby(["track", "artist"]):
-        if len(sub) < config.MIN_PLAYS_FALLEN:
+        if len(sub) < (min_plays or config.MIN_PLAYS_FALLEN):
             continue
         n = len(sub)
         k = max(5, int(n * 0.3))
@@ -298,7 +319,23 @@ def fallen_favorites(df):
             "last_full_play": str(full["date"].iloc[-1]) if len(full) else None,
             "curve": [r(v, 2) for v in roll.bfill().iloc[idx]],
         })
-    return sorted(out, key=lambda x: (-x["jump"], -x["plays"]))[:10]
+    return sorted(out, key=lambda x: (-x["jump"], -x["plays"]))
+
+
+def fallen_by_year(df):
+    """Each year's fallen favorite: the song you turned on hardest, with the turn landing in that year."""
+    out = {}
+    for x in fallen_favorites(df):
+        y = int(x["burnout_date"][:4]) if x["burnout_date"] else None
+        if y and y not in out:
+            out[y] = with_covers(df, [x])[0]
+    # a year where no song turned: look inside that year alone, with a lower bar for plays
+    for y, sub in df.groupby("year"):
+        if int(y) not in out:
+            inside = fallen_favorites(sub, min_plays=10)
+            if inside:
+                out[int(y)] = with_covers(df, inside[:1])[0]
+    return dict(sorted(out.items()))
 
 
 # ---------------------------------------------------------------- 13: year vs year
@@ -351,6 +388,32 @@ def year_vs_year(df):
         out["most_different"] = {"a": far[0], "b": far[1], **far[2], "drivers": drivers(far[0], far[1])}
         out["most_similar"] = {"a": near[0], "b": near[1], **near[2]}
         out["biggest_shift"] = max(consecutive, key=lambda c: c["overall"])
+    out["by_year"] = month_shifts(df)
+    return out
+
+
+def month_shifts(df, min_minutes=300):
+    """For one year: the biggest change between back-to-back months, the same way as between years."""
+    out = {}
+    for y, sub in df.groupby("year"):
+        mins = sub.groupby("month")["minutes"].sum()
+        months = [m for m in sorted(mins.index) if mins[m] >= min_minutes]
+        if len(months) < 2:
+            continue
+        sub = sub[sub["month"].isin(months)]
+        tagged = sub[sub["tagged"]]
+        artists = sub.pivot_table(index="month", columns="artist", values="minutes", aggfunc="sum", fill_value=0)
+        moods = mood_minutes(tagged, "month").reindex(months, fill_value=0)
+        themes = theme_minutes(tagged, "month").reindex(months, fill_value=0)
+        best = None
+        for a, b in zip(months, months[1:]):
+            d = float(np.mean([jsd(artists.loc[a], artists.loc[b]), jsd(moods.loc[a], moods.loc[b]), jsd(themes.loc[a], themes.loc[b])]))
+            if best is None or d > best[2]:
+                best = (a, b, d)
+        a, b, d = best
+        delta = (artists.loc[b] / artists.loc[b].sum()) - (artists.loc[a] / artists.loc[a].sum())
+        out[int(y)] = {"from": a, "to": b, "overall": r(d, 3),
+                       "drivers": {"artists_up": delta.nlargest(4).index.tolist(), "artists_down": delta.nsmallest(4).index.tolist()}}
     return out
 
 
@@ -500,7 +563,8 @@ def run():
         "extremes": lambda: (lambda x: ([with_covers(df, x["overall"][m]["tracks"][:2]) for m in ("sad", "happy") if x.get("overall", {}).get(m)], x)[1])(extremes(df)), "theme_timeline": lambda: theme_timeline(df),
         "eras": lambda: __import__("wrapped.album_covers", fromlist=["x"]).era_covers(df, era_extras(df, eras.get("eras", []))), "tops": lambda: (lambda t: ([with_covers(df, v["songs"][:1]) for v in t.values() if isinstance(v, dict) and "songs" in v], t)[1])(tops(df)), "skips": lambda: (lambda k: {**k, "most_skipped": with_covers(df, k["most_skipped"][:3]) + k["most_skipped"][3:],
                                        "most_skipped_by_year": {y: with_covers(df, [v])[0] for y, v in k["most_skipped_by_year"].items()}})(skips(df)),
-        "fallen": lambda: with_covers(df, fallen_favorites(df)[:3]), "yvy": lambda: year_vs_year(df),
+        "fallen": lambda: with_covers(df, fallen_favorites(df)[:3]),
+        "fallen_by_year": lambda: fallen_by_year(df), "yvy": lambda: year_vs_year(df),
         "locations": lambda: locations(df),
         "year_albums": lambda: __import__("wrapped.album_covers", fromlist=["x"]).year_albums(df),
         "covers": lambda: __import__("wrapped.album_covers", fromlist=["x"]).album_covers(df),   # record labels

@@ -21,11 +21,15 @@ function themesTrail(W, H) {
 
 defineSlide("themes", () => {
     if (!TAGGED) return null;
-    const T = D.theme_timeline, keep = T.themes.filter(t => t !== "other").slice(0, 6);
+    // one year: that year's own stream, week by week, with its own top themes and songs
+    const A = D.theme_timeline, Y = yr() && A.by_year ? A.by_year[yr()] : null;
+    if (yr() && !Y) return null;                       // too little tagged listening that year
+    const T = Y ? { months: Y.weeks, themes: Y.themes, series: Y.series, examples: Y.examples, weekly: true } : A;
+    const keep = T.themes.filter(t => t !== "other").slice(0, 6);
     const color = d3.scaleOrdinal(keep, THEMES14_COLORS);
     return { theme: "night", interactive: true, html: `<div class="inner th">
       <div class="th-head">
-        <p class="kick rise">Most of your songs were about</p>
+        <p class="kick rise">${Y ? `In ${yr()}, most of your songs were about` : "Most of your songs were about"}</p>
         <h1 class="big th-big rise d1" style="color:${color(keep[0])}">${esc(keep[0])}</h1>
       </div>
       <div class="chart th-chart rise d2" id="stream"></div>
@@ -78,9 +82,12 @@ function drawThemeStream(T, keep, color, pick) {
   const st = d3.stack().keys(keep).offset(d3.stackOffsetWiggle).order(d3.stackOrderInsideOut)(rows);
   const lo = d3.min(st, s => d3.min(s, d => d[0])), hi = d3.max(st, s => d3.max(s, d => d[1]));
 
-  // where each year starts (the months have gaps, so the axis follows the data, not the calendar)
+  // where each year starts (the months have gaps, so the axis follows the data, not the calendar);
+  // one year: where each month starts instead
+  const MON = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  const tickOf = m => T.weekly ? MON[+m.slice(5, 7) - 1] : m.slice(0, 4);
   const yearStarts = [];
-  T.months.forEach((m, k) => { const y = m.slice(0, 4); if (!yearStarts.length || yearStarts.at(-1).y !== y) yearStarts.push({ y, k }); });
+  T.months.forEach((m, k) => { const y = tickOf(m); if (!yearStarts.length || yearStarts.at(-1).y !== y) yearStarts.push({ y, k }); });
 
   const svg = d3.select(box).append("svg");
   let W, H, time, band, area;
@@ -126,7 +133,7 @@ function drawThemeStream(T, keep, color, pick) {
   // hover: a line at the month under the pointer, and a tip with that month's themes, biggest first;
   // the band under the pointer is the bold line in the tip
   const guide = svg.append("line").attr("class", "th-guide").style("display", "none");
-  const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" }).toLowerCase();
+  const monthName = m => T.weekly ? "week of " + new Date(m + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase() : new Date(m + "-15T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" }).toLowerCase();
   svg.append("rect").attr("class", "th-hit").attr("data-hover", "").attr("x", 0).attr("y", 0).attr("width", W).attr("height", H)
     .attr("fill", "transparent").style("cursor", "pointer")
     .on("mousemove", e => {

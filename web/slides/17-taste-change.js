@@ -47,12 +47,16 @@ function tasteForkTrail(W, H) {
 }
 
 defineSlide("taste-change", () => {
-    const b = D.yvy && D.yvy.biggest_shift;
+    // one year: the biggest change between two back-to-back months of that year
+    const b = D.yvy && (yr() ? (D.yvy.by_year || {})[yr()] : D.yvy.biggest_shift);
     if (!b) return null;
+    const MON = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const mon = m => MON[+String(m).slice(5, 7) - 1];
+    const [from, to] = yr() ? [mon(b.from), mon(b.to)] : [b.from, String(b.to).slice(2)];
     const list = a => a.slice(0, 2).map(n => `<li>${esc(n)}</li>`).join("");
     return { theme: "flame", html: `<div class="inner tc">
-      <p class="kick rise tc-kick">Your taste changed most</p>
-      <h1 class="huge rise d1 tc-years">${b.from}<span class="tc-arrow">→</span>${String(b.to).slice(2)}</h1>
+      <p class="kick rise tc-kick">${yr() ? `In ${yr()}, your taste changed most` : "Your taste changed most"}</p>
+      <h1 class="huge rise d1 tc-years">${from}<span class="tc-arrow">→</span>${to}</h1>
       <div class="tc-cols rise d2">
         <div class="tc-col tc-out"><span class="tag tc-tag">Out</span><ul class="tc-list">${list(b.drivers.artists_down)}</ul></div>
         <div class="tc-col tc-in"><span class="tag tc-tag">In</span><ul class="tc-list">${list(b.drivers.artists_up)}</ul></div>

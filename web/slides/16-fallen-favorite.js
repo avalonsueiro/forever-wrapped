@@ -2,7 +2,8 @@
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("fallen-favorite", () => {
-    const f = (D.fallen || [])[0];
+    // one year: the favorite you turned on that year (no such song, no page)
+    const f = yr() ? (D.fallen_by_year || {})[yr()] : (D.fallen || [])[0];
     if (!f) return null;
     const ac = THEMES.cobalt[2];
     const skipped = Math.round(f.late_rate * 100);
