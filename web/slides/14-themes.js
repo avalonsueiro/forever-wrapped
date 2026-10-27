@@ -23,20 +23,37 @@ defineSlide("themes", () => {
     if (!TAGGED) return null;
     const T = D.theme_timeline, keep = T.themes.filter(t => t !== "other").slice(0, 6);
     const color = d3.scaleOrdinal(keep, THEMES14_COLORS);
-    return { theme: "night", html: `<div class="inner th">
+    return { theme: "night", interactive: true, html: `<div class="inner th">
       <div class="th-head">
         <p class="kick rise">Most of your songs were about</p>
         <h1 class="big th-big rise d1" style="color:${color(keep[0])}">${esc(keep[0])}</h1>
       </div>
       <div class="chart th-chart rise d2" id="stream"></div>
-      <div class="th-legend rise d3">${keep.map((t, k) => `<span class="${k === 0 ? "th-top" : ""}"><i style="background:${color(t)}"></i>${esc(t)}</span>`).join("")}</div>
+      <div class="th-legend rise d3">${keep.map((t, k) => `<button type="button" data-t="${esc(t)}" class="${k === 0 ? "th-top" : ""}"><i style="background:${color(t)}"></i>${esc(t)}</button>`).join("")}</div>
+      <div class="th-songs rise d4" id="thSongs" aria-live="polite"></div>
     </div>`,
-      after() { drawThemeStream(T, keep, color); },
+      after() {
+        const pick = t => showThemeSongs(T, t, color);
+        drawThemeStream(T, keep, color, pick);
+        document.querySelector(".th-legend").addEventListener("click", e => { const b = e.target.closest("button"); if (b) pick(b.dataset.t); });
+        pick(keep[0]);
+      },
       // no records here: the streamgraph is busy enough on its own
     };
   });
 
-function drawThemeStream(T, keep, color) {
+// Click a theme (in the legend or on its band) to list the songs you played most that are about it.
+function showThemeSongs(T, t, color) {
+  const box = document.getElementById("thSongs");
+  if (!box) return;
+  document.querySelectorAll(".th-legend button").forEach(b => b.classList.toggle("th-on", b.dataset.t === t));
+  const songs = ((T.examples || {})[t] || []).slice(0, 6);
+  box.style.setProperty("--th-c", color(t));
+  box.innerHTML = songs.length ? `<p class="th-songs-head">songs about <b>${esc(t)}</b></p><ol>` +
+    songs.map(x => `<li><b>${esc(clean(x.track))}</b><span>${esc(x.artist)}</span></li>`).join("") + "</ol>" : "";
+}
+
+function drawThemeStream(T, keep, color, pick) {
   const box = document.getElementById("stream");
   if (!box) return;
   const tall = innerWidth < 700;                         // phone: time runs down the screen
@@ -94,7 +111,7 @@ function drawThemeStream(T, keep, color) {
   const guide = svg.append("line").attr("class", "th-guide").style("display", "none");
   const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" }).toLowerCase();
   svg.append("rect").attr("data-hover", "").attr("x", 0).attr("y", 0).attr("width", W).attr("height", H)
-    .attr("fill", "transparent").style("cursor", "crosshair")
+    .attr("fill", "transparent").style("cursor", "pointer")
     .on("mousemove", e => {
       const [px, py] = d3.pointer(e);
       const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(tall ? py : px))));
@@ -109,6 +126,13 @@ function drawThemeStream(T, keep, color) {
       tip.hidden = false;
       tip.style.left = Math.min(e.clientX + 14, innerWidth - 200) + "px"; tip.style.top = e.clientY + 14 + "px";
       svg.selectAll(".th-band").classed("th-dim", s => under && s.key !== under.key);
+    })
+    .on("click", e => {                                  // pick the band under the pointer
+      const [px, py] = d3.pointer(e);
+      const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(tall ? py : px))));
+      const at = tall ? band.invert(px) : band.invert(py);
+      const under = st.find(s => at >= s[k][0] && at <= s[k][1]);
+      if (under && pick) pick(under.key);
     })
     .on("mouseleave", () => { tip.hidden = true; guide.style("display", "none"); svg.selectAll(".th-band").classed("th-dim", false); });
 }

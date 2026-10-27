@@ -221,8 +221,17 @@ def theme_timeline(df):
     top = tm.sum().nlargest(10).index
     tm["other"] = tm.drop(columns=top).sum(axis=1)
     tm = tm[list(top) + ["other"]]
+    # example songs per theme: your most-played songs about it, each song's minutes split across
+    # its themes (like the chart), so songs that are mostly about the theme come first
+    songs = df[df["tagged"] & (df["themes"].map(len) > 0)].groupby(["track", "artist"]).agg(
+        minutes=("minutes", "sum"), themes=("themes", "first")).reset_index()
+    songs["share"] = songs["minutes"] / songs["themes"].map(len)
+    examples = {}
+    for t in top:
+        hit = songs[songs["themes"].map(lambda ts: t in ts)].nlargest(8, "share")
+        examples[t] = [{"track": x.track, "artist": x.artist, "minutes": r(x.minutes)} for x in hit.itertuples()]
     return {"months": tm.index.tolist(), "themes": list(tm.columns),
-            "series": {t: [r(v) for v in tm[t]] for t in tm.columns}}
+            "series": {t: [r(v) for v in tm[t]] for t in tm.columns}, "examples": examples}
 
 
 # ---------------------------------------------------------------- 10: top artists / songs + bump chart
