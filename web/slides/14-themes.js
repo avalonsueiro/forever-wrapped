@@ -30,27 +30,44 @@ defineSlide("themes", () => {
       </div>
       <div class="chart th-chart rise d2" id="stream"></div>
       <div class="th-legend rise d3">${keep.map((t, k) => `<button type="button" data-t="${esc(t)}" class="${k === 0 ? "th-top" : ""}"><i style="background:${color(t)}"></i>${esc(t)}</button>`).join("")}</div>
-      <div class="th-songs rise d4" id="thSongs" aria-live="polite"></div>
     </div>`,
       after() {
-        const pick = t => showThemeSongs(T, t, color);
+        const pick = (t, e) => showThemeSongs(T, t, color, e);
         drawThemeStream(T, keep, color, pick);
-        document.querySelector(".th-legend").addEventListener("click", e => { const b = e.target.closest("button"); if (b) pick(b.dataset.t); });
-        pick(keep[0]);
+        document.querySelector(".th-legend").addEventListener("click", e => { const b = e.target.closest("button"); if (b) pick(b.dataset.t, e); });
+        const close = e => { if (e.type === "keydown" ? e.key === "Escape" : !e.target.closest(".th-pop, .th-legend button, .th-hit")) closeThemeSongs(); };
+        document.addEventListener("click", close); document.addEventListener("keydown", close);
+        return () => { closeThemeSongs(); document.removeEventListener("click", close); document.removeEventListener("keydown", close); };
       },
       // no records here: the streamgraph is busy enough on its own
     };
   });
 
-// Click a theme (in the legend or on its band) to list the songs you played most that are about it.
-function showThemeSongs(T, t, color) {
-  const box = document.getElementById("thSongs");
-  if (!box) return;
-  document.querySelectorAll(".th-legend button").forEach(b => b.classList.toggle("th-on", b.dataset.t === t));
+// Click a theme (in the legend or on its band) and a popup lists the songs you played most that are
+// about it, next to where you clicked. Click outside it, press Esc or its x to close.
+function showThemeSongs(T, t, color, e) {
   const songs = ((T.examples || {})[t] || []).slice(0, 6);
-  box.style.setProperty("--th-c", color(t));
-  box.innerHTML = songs.length ? `<p class="th-songs-head">songs about <b>${esc(t)}</b></p><ol>` +
-    songs.map(x => `<li><b>${esc(clean(x.track))}</b><span>${esc(x.artist)}</span></li>`).join("") + "</ol>" : "";
+  if (!songs.length) return;
+  closeThemeSongs();
+  document.querySelectorAll(".th-legend button").forEach(b => b.classList.toggle("th-on", b.dataset.t === t));
+  const pop = document.createElement("div");
+  pop.className = "th-pop"; pop.setAttribute("data-hover", "");   // clicks on it never flip the page
+  pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", `songs about ${t}`);
+  pop.style.setProperty("--th-c", color(t));
+  pop.innerHTML = `<button type="button" class="th-pop-x" aria-label="Close">×</button>` +
+    `<p class="th-pop-head">songs about <b>${esc(t)}</b></p><ol>` +
+    songs.map(x => `<li><b>${esc(clean(x.track))}</b><span>${esc(x.artist)}</span></li>`).join("") + "</ol>";
+  document.getElementById("story").appendChild(pop);
+  pop.querySelector(".th-pop-x").addEventListener("click", closeThemeSongs);
+  // beside the click, kept on screen
+  const r = pop.getBoundingClientRect(), x = e ? e.clientX : innerWidth / 2, y = e ? e.clientY : innerHeight / 2;
+  pop.style.left = Math.max(12, Math.min(x + 16, innerWidth - r.width - 12)) + "px";
+  pop.style.top = Math.max(12, Math.min(y - r.height / 2, innerHeight - r.height - 12)) + "px";
+  tip.hidden = true;
+}
+function closeThemeSongs() {
+  document.querySelectorAll(".th-pop").forEach(p => p.remove());
+  document.querySelectorAll(".th-legend button").forEach(b => b.classList.remove("th-on"));
 }
 
 function drawThemeStream(T, keep, color, pick) {
@@ -110,7 +127,7 @@ function drawThemeStream(T, keep, color, pick) {
   // the band under the pointer is the bold line in the tip
   const guide = svg.append("line").attr("class", "th-guide").style("display", "none");
   const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" }).toLowerCase();
-  svg.append("rect").attr("data-hover", "").attr("x", 0).attr("y", 0).attr("width", W).attr("height", H)
+  svg.append("rect").attr("class", "th-hit").attr("data-hover", "").attr("x", 0).attr("y", 0).attr("width", W).attr("height", H)
     .attr("fill", "transparent").style("cursor", "pointer")
     .on("mousemove", e => {
       const [px, py] = d3.pointer(e);
@@ -132,7 +149,7 @@ function drawThemeStream(T, keep, color, pick) {
       const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(tall ? py : px))));
       const at = tall ? band.invert(px) : band.invert(py);
       const under = st.find(s => at >= s[k][0] && at <= s[k][1]);
-      if (under && pick) pick(under.key);
+      if (under && pick) pick(under.key, e);
     })
     .on("mouseleave", () => { tip.hidden = true; guide.style("display", "none"); svg.selectAll(".th-band").classed("th-dim", false); });
 }

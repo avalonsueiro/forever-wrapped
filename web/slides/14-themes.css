@@ -21,15 +21,20 @@
 .slide .th-legend button.th-on { opacity: 1; font-weight: 900; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
 .slide .th-legend i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 
-/* the picked theme's songs: a short numbered row under the legend */
-.slide .th-songs { min-height: 64px; }
-.slide .th-songs-head { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: rgb(255 255 255 / .6); }
-.slide .th-songs-head b { color: var(--th-c); font-weight: 900; }
-.slide .th-songs ol { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px 26px; counter-reset: th; }
-.slide .th-songs li { display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: baseline; counter-increment: th; }
-.slide .th-songs li::before { content: counter(th); grid-row: span 2; font-weight: 900; font-size: 15px; color: var(--th-c); }
-.slide .th-songs li b { font-weight: 800; font-size: clamp(14px, 1.15vw, 17px); }
-.slide .th-songs li span { grid-column: 2; font-size: 12px; font-weight: 600; color: rgb(255 255 255 / .55); }
+/* popup with a theme's songs (lives on #story, not inside the slide) */
+.th-pop { position: fixed; z-index: 30; width: min(300px, calc(100vw - 24px)); padding: 16px 18px 14px; border-radius: 16px;
+  background: #1c1c1e; border: 2px solid var(--th-c); box-shadow: 0 0 28px color-mix(in srgb, var(--th-c) 35%, transparent), 0 12px 30px rgb(0 0 0 / .5);
+  color: #fff; text-transform: lowercase; animation: thPopIn .16s ease-out; }
+.th-pop-head { margin: 0 24px 10px 0; font-size: 13px; font-weight: 700; color: rgb(255 255 255 / .6); }
+.th-pop-head b { color: var(--th-c); font-weight: 900; }
+.th-pop-x { position: absolute; top: 8px; right: 10px; border: 0; background: none; color: #fff; opacity: .6; font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 4px; }
+.th-pop-x:hover { opacity: 1; }
+.th-pop ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: th; }
+.th-pop li { display: grid; grid-template-columns: 18px 1fr; align-items: baseline; counter-increment: th; }
+.th-pop li::before { content: counter(th); grid-row: span 2; font-weight: 900; font-size: 15px; color: var(--th-c); }
+.th-pop li b { font-weight: 800; font-size: 15px; line-height: 1.15; }
+.th-pop li span { grid-column: 2; font-size: 12px; font-weight: 600; color: rgb(255 255 255 / .55); }
+@keyframes thPopIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 700px) {
   .slide .th { margin-top: 64px; gap: 16px; }
