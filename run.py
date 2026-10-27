@@ -11,15 +11,39 @@ Forever, Wrapped: run the pipeline one step at a time, or all at once.
     python run.py photos [--ai]          # 6. (Mac) pick era photos from Photos + where you were, then build again
     python run.py photos --folder PATH   # 6. (any computer) the same, from a folder of photo files
     python run.py all    --mode mock     # every step in order
+    python run.py clean                  # delete everything made so far (asks first), e.g. after practicing
 
 Add --limit 50 to lyrics/tag to try just your 50 most-played songs first. Before tagging spends
 anything, it prints the rough cost and asks; --yes skips the question.
 Everything is cached in data/cache, so any step can be stopped and rerun safely.
 """
 import argparse
+import shutil
 import time
 from pathlib import Path
 from wrapped import step0_sample, step1_load, step2_lyrics, step3_tag, step3b_research, step4_eras, step5_build
+
+
+def clean():
+    """Delete the history, caches and everything built from them, so you can start over."""
+    from wrapped import config
+    targets = [config.RAW_DIR, config.CACHE_DIR, config.OUT_DIR, config.DATA_JS, config.PHOTOS_DIR,
+               config.WEB_DIR / "photos-thumbs", config.WEB_DIR / "covers", config.WEB_DIR / "artists", config.ERA_NOTES]
+    print("  this deletes your Spotify files in data/raw, every saved tag (tagging again costs money),")
+    print("  the built site's data, its photos and covers, and era_notes.csv")
+    try:
+        answer = input("  delete all of it? [y/N] ")
+    except (EOFError, KeyboardInterrupt):
+        answer = ""
+    if answer.strip().lower() not in ("y", "yes"):
+        raise SystemExit("  nothing deleted")
+    for t in targets:
+        if t.is_dir():
+            shutil.rmtree(t)
+            t.mkdir(parents=True)
+        elif t.exists():
+            t.unlink()
+    print("  cleaned")
 
 
 def photos(folder, ai):
@@ -36,7 +60,7 @@ def photos(folder, ai):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("step", choices=["sample", "load", "lyrics", "tag", "eras", "build", "photos", "all"])
+    p.add_argument("step", choices=["sample", "load", "lyrics", "tag", "eras", "build", "photos", "all", "clean"])
     p.add_argument("--mode", default="live", choices=["live", "batch", "mock"])
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--research-missing", action="store_true",
@@ -57,6 +81,7 @@ def main():
         "eras": lambda: step4_eras.run("mock" if a.mode == "mock" else "live"),
         "build": lambda: step5_build.run(),
         "photos": lambda: photos(a.folder, a.ai),
+        "clean": clean,
     }
     order = ["load", "lyrics", "tag", "eras", "build"] if a.step == "all" else [a.step]
     for name in order:

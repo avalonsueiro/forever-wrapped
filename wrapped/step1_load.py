@@ -19,17 +19,33 @@ What each raw record looks like (only the fields we use):
     }
 """
 import json
+from pathlib import Path
 import pandas as pd
 from . import config
 
 
+def unzip_exports() -> None:
+    """The zip Spotify emails can go straight into data/raw: its listening files are taken out of it."""
+    import zipfile
+    for z in config.RAW_DIR.glob("*.zip"):
+        with zipfile.ZipFile(z) as zf:
+            for name in zf.namelist():
+                base = Path(name).name                    # file name only, so nothing lands outside raw/
+                if base.startswith("Streaming_History_Audio_") and base.endswith(".json") and not (config.RAW_DIR / base).exists():
+                    (config.RAW_DIR / base).write_bytes(zf.read(name))
+
+
 def read_raw_files() -> pd.DataFrame:
-    files = sorted(config.RAW_DIR.glob("*.json"))
-    # Video history files have no songs in them, so they're skipped.
-    files = [f for f in files if "Video" not in f.name and not f.name.startswith("_")]
+    unzip_exports()
+    # the files can sit in data/raw or in a folder inside it (the unzipped export, say); the same file
+    # in two places is only read once
+    # (only the audio history: video history has no songs, and other export files aren't listening)
+    files = {f.name: f for f in sorted(config.RAW_DIR.rglob("Streaming_History_Audio_*.json"), key=lambda f: len(f.parts), reverse=True)}
+    files = [f for _, f in sorted(files.items())]
     if not files:
-        raise SystemExit(f"No JSON files found in {config.RAW_DIR}. Put your Spotify export there "
-                         "or run `python run.py sample` to generate practice data.")
+        raise SystemExit(f"No Spotify history found in {config.RAW_DIR}. Put the zip Spotify emailed you there "
+                         "(or the Streaming_History_Audio files from it), or run `python run.py sample` "
+                         "to make practice data.")
     records = []
     for f in files:
         records.extend(json.loads(f.read_text(encoding="utf-8")))

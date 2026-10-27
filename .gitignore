@@ -1,7 +1,11 @@
 .env
 .venv/
 __pycache__/
-data/
+# everything in data/ is yours; only the empty raw/ folder ships, so there's a place to put your export
+data/*
+!data/raw/
+data/raw/*
+!data/raw/.gitkeep
 web/data.js
 web/photos/
 era_notes.csv
