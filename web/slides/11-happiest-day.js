@@ -4,8 +4,9 @@
 defineSlide("happiest-day", () => {
   const mood = "happy";
   if (!TAGGED || !D.extremes) return null;
-  const E = D.extremes, d = yr() ? E.by_year[yr()][mood] : E.overall[mood];
-  const tracks = yr() ? [] : E.overall[mood].tracks.slice(0, 2);
+  const E = D.extremes, d = yr() ? (E.by_year[yr()] || {})[mood] : E.overall[mood];
+  if (!d) return null;
+  const tracks = (d.tracks || []).slice(0, 2);
 
   // split "Jan 13, 2026" so the year can sit on its own line in the accent
   const full = date(d.date), cut = full.lastIndexOf(", ");

@@ -3,7 +3,7 @@
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("most-skipped", () => {
     // the picked year's most skipped song (all time: the most skipped overall)
-    const s = (yr() && (D.skips.most_skipped_by_year || {})[yr()]) || D.skips.most_skipped[0];
+    const s = yr() ? (D.skips.most_skipped_by_year || {})[yr()] : D.skips.most_skipped[0];
     if (!s) return null;
 
     // one pip per play, lit in the accent when it was skipped (capped so a huge count still fits)

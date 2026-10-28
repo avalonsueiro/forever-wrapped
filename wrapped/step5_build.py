@@ -178,7 +178,10 @@ def mood_by_hour(df):
     return {"all": shares(tagged), "weekday": shares(tagged[tagged["weekday"] < 5]),
             "weekend": shares(tagged[tagged["weekday"] >= 5]),
             "top_theme_by_hour": [tm.loc[h].idxmax() if tm.loc[h].sum() else None for h in range(24)],
-            "minutes_by_hour": [r(v) for v in tagged.groupby("hour")["minutes"].sum().reindex(range(24), fill_value=0)]}
+            "minutes_by_hour": [r(v) for v in tagged.groupby("hour")["minutes"].sum().reindex(range(24), fill_value=0)],
+            # each year's own mix, when it has at least an hour of tagged listening late at night
+            "by_year": {int(y): shares(sub) for y, sub in tagged.groupby("year")
+                        if sub[sub["hour"].isin([23, 0, 1, 2, 3])]["minutes"].sum() >= 60}}
 
 
 # ---------------------------------------------------------------- 7: mood extremes
@@ -203,6 +206,8 @@ def extremes(df):
     for y in sorted(years.unique()):
         s = score[years == y]
         out["by_year"][int(y)] = {m: {"date": str(s[m].idxmax()), "score": r(s[m].max())} for m in MOODS}
+        for m in ("sad", "happy"):                  # what was on repeat that day, for the saddest and happiest pages
+            out["by_year"][int(y)][m]["tracks"] = top_list(sub[sub["date"] == s[m].idxmax()], ["track", "artist"], 2)
     # most volatile day: biggest spread of valence across the day's songs (minutes-weighted std)
     def wstd(g):
         v, wt = g["valence"], g["minutes"]
@@ -256,10 +261,19 @@ def theme_timeline(df):
 
 
 # ---------------------------------------------------------------- 10: top artists / songs + bump chart
+def top_songs(df, n=10):
+    """Most played songs, counting a play only when it wasn't skipped (like Spotify's stream counts),
+    so the ranking and the play counts on the page agree. Ties go to more minutes."""
+    g = df[~df["skipped"]].groupby(["track", "artist"]).agg(minutes=("minutes", "sum"), plays=("minutes", "size"))
+    g = g.sort_values(["plays", "minutes"], ascending=False).head(n).reset_index()
+    return [{"track": row["track"], "artist": row["artist"], "minutes": r(row["minutes"]), "plays": int(row["plays"])}
+            for _, row in g.iterrows()]
+
+
 def tops(df):
-    out = {"all": {"artists": top_list(df, "artist"), "songs": top_list(df, ["track", "artist"])}}
+    out = {"all": {"artists": top_list(df, "artist"), "songs": top_songs(df)}}
     for y, sub in df.groupby("year"):
-        out[int(y)] = {"artists": top_list(sub, "artist"), "songs": top_list(sub, ["track", "artist"])}
+        out[int(y)] = {"artists": top_list(sub, "artist"), "songs": top_songs(sub)}
     top_artists = df.groupby("artist")["minutes"].sum().nlargest(8).index
     monthly = df.pivot_table(index="month", columns="artist", values="minutes", aggfunc="sum", fill_value=0)
     ranks = monthly.rank(axis=1, ascending=False, method="first")
@@ -560,7 +574,8 @@ def run():
         "overview": lambda: overview(df, eras), "years": lambda: year_cards(df, eras),
         "listening": lambda: when_you_listen(df), "calendar": lambda: calendar(df),
         "seasons": lambda: seasons(df), "mood_by_hour": lambda: mood_by_hour(df),
-        "extremes": lambda: (lambda x: ([with_covers(df, x["overall"][m]["tracks"][:2]) for m in ("sad", "happy") if x.get("overall", {}).get(m)], x)[1])(extremes(df)), "theme_timeline": lambda: theme_timeline(df),
+        "extremes": lambda: (lambda x: ([with_covers(df, x["overall"][m]["tracks"][:2]) for m in ("sad", "happy") if x.get("overall", {}).get(m)],
+                                     [with_covers(df, v[m]["tracks"]) for v in (x or {}).get("by_year", {}).values() for m in ("sad", "happy")], x)[2])(extremes(df)), "theme_timeline": lambda: theme_timeline(df),
         "eras": lambda: __import__("wrapped.album_covers", fromlist=["x"]).era_covers(df, era_extras(df, eras.get("eras", []))), "tops": lambda: (lambda t: ([with_covers(df, v["songs"][:1]) for v in t.values() if isinstance(v, dict) and "songs" in v], t)[1])(tops(df)), "skips": lambda: (lambda k: {**k, "most_skipped": with_covers(df, k["most_skipped"][:3]) + k["most_skipped"][3:],
                                        "most_skipped_by_year": {y: with_covers(df, [v])[0] for y, v in k["most_skipped_by_year"].items()}})(skips(df)),
         "fallen": lambda: with_covers(df, fallen_favorites(df)[:3]),
@@ -568,6 +583,7 @@ def run():
         "locations": lambda: locations(df),
         "year_albums": lambda: __import__("wrapped.album_covers", fromlist=["x"]).year_albums(df),
         "covers": lambda: __import__("wrapped.album_covers", fromlist=["x"]).album_covers(df),   # record labels
+        "covers_by_year": lambda: __import__("wrapped.album_covers", fromlist=["x"]).covers_by_year(df),
         "identity": lambda: {"title": eras.get("identity_title", ""), "summary": eras.get("identity_summary", "")},
     }
     data = {"moods": MOODS, "mood_colors": config.MOOD_COLORS}

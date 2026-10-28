@@ -53,6 +53,7 @@ function wrTitleBox() {
 
 const wholeRecordTrail = (W, H) => {
   if (yr()) return wrYearTrail(W, H);
+  document.querySelector("#story .wr-grid")?.remove();
   const days = wrDays(), n = days.length;
   if (!n) return [];
   const groups = wrGroups(days);
@@ -157,9 +158,25 @@ function wrYearTrail(W, H) {
   const gw = 31 * cell, gh = rows * pitch;
   const x0 = phone ? ax : ax + aw - gw, y0 = ay + (ah - gh) / 2 + 10;
   wrMonthLabels(months, cell, pitch, x0, y0, gw, phone);
+  wrGrid(y, months, cell, pitch, x0, y0, gh);
   const base = cell * 0.56;
   return months.filter(mo => mo.count).map(mo => ({ r: base, points: mo.days.map(([d, mins]) =>
     [x0 + (d - 0.5) * cell, y0 + (mo.m + 0.5) * pitch, base * (0.72 + 0.4 * Math.min(1, Math.sqrt(mins / 150))), mo.color]) }));
+}
+
+// The calendar's gray grid, behind the records: a line along each month (ending on its last day)
+// and a faint line down each day, so the records read as the days you listened.
+function wrGrid(y, months, cell, pitch, x0, y0, gh) {
+  const story = document.getElementById("story");
+  let box = story.querySelector(".wr-grid");
+  if (!box) { box = document.createElement("div"); box.className = "wr-grid"; box.setAttribute("aria-hidden", "true"); story.prepend(box); }
+  const x = d => x0 + (d - 0.5) * cell;
+  const cols = Array.from({ length: 31 }, (_, i) => i + 1).map(d =>
+    `<line class="${[1, 10, 20, 31].includes(d) ? "wr-gv wr-gv-on" : "wr-gv"}" x1="${x(d)}" x2="${x(d)}" y1="${y0}" y2="${y0 + gh}"/>`).join("");
+  const rows = months.map(mo => { const cy = y0 + (mo.m + 0.5) * pitch, last = new Date(y, mo.m + 1, 0).getDate();
+    return `<line class="wr-gh" x1="${x(1)}" x2="${x(last)}" y1="${cy}" y2="${cy}"/>` +
+      Array.from({ length: last }, (_, i) => `<circle class="wr-gd" cx="${x(i + 1)}" cy="${cy}" r="${Math.max(1.5, cell * 0.08)}"/>`).join(""); }).join("");
+  box.innerHTML = `<svg width="100%" height="100%">${cols}${rows}</svg>`;
 }
 
 // Month labels on the right of each row ("jan 21 days"), plus a few day numbers along the top.
@@ -187,7 +204,7 @@ defineSlide("whole-record", () => { const [wrN, wrRest] = wrSpan(wrDays()); retu
     // the square is sized around the title, so lay it out again once the font has loaded
     // (otherwise it can come out a different size on each visit)
     document.fonts.ready.then(() => { if (current && current.trail === wholeRecordTrail && trail) trail.layout(); });
-    return () => document.querySelector("#story .wr-years")?.remove();   // labels go when you leave the page
+    return () => document.querySelectorAll("#story .wr-years, #story .wr-grid").forEach(e => e.remove());   // labels and grid go when you leave the page
   },
   // fast: ~1,100 records; no photos (they'd be a few pixels wide), the year colors instead
   trailOptions: { totalSeconds: 5, fast: true, albums: [], glowSize: 0.55, glowPasses: 1 } }; });

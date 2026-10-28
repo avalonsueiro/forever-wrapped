@@ -17,16 +17,18 @@ const AM_NIGHT = [23, 0, 1, 2, 3];
 defineSlide("after-midnight", () => {
     if (!TAGGED) return null;
     // real share of each mood group per hour, and for the night hours together
-    const M = D.mood_by_hour.all;
+    // a picked year: that year's own hours (skipped when it had too little late-night listening)
+    const M = yr() ? (D.mood_by_hour.by_year || {})[yr()] : D.mood_by_hour.all;
+    if (!M) return null;
     const byHour = d3.range(24).map(h => moodGroups(Object.fromEntries(MOODS.map(m => [m, M[m][h]]))));
     const nightMix = moodGroups(Object.fromEntries(MOODS.map(m => [m, d3.sum(AM_NIGHT, h => M[m][h])])));
     const night = topGroup(nightMix);
     const KEYS = MOOD_GROUPS.map(([g]) => g);
     return { theme: "night",
       html: `<div class="inner am">
-      <p class="kick rise am-kick">after midnight you get</p>
+      <p class="kick rise am-kick">${yr() ? `in ${yr()}, after midnight you got` : "after midnight you get"}</p>
       <h1 class="huge rise d1 am-mood" style="color:${GROUP_COLOR[night]}">${night}</h1>
-      <p class="sub rise d1 am-share">${Math.round(nightMix[night] * 100)}% of what you play between 11pm and 4am</p>
+      <p class="sub rise d1 am-share">${Math.round(nightMix[night] * 100)}% of what you ${yr() ? "played" : "play"} between 11pm and 4am</p>
       <div class="chart rise d2 am-strip" id="hourstrip"></div>
       <div class="rise d3 am-legend"><div class="legend">${KEYS.map(g => `<span><i style="background:${GROUP_COLOR[g]}"></i>${g}</span>`).join("")}</div></div></div>`,
       after() {

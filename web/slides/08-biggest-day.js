@@ -5,7 +5,15 @@ defineSlide("biggest-day", () => {
     const daily = Object.entries(D.calendar.daily).filter(([d]) => !yr() || d.startsWith(yr()));
     if (!daily.length) return null;
     const [day, mins] = daily.reduce((a, b) => b[1] > a[1] ? b : a);
-    const st = D.calendar.longest_streak;
+    // longest run of days in a row with music (a picked year: within that year)
+    const st = !yr() ? D.calendar.longest_streak : { days: (() => {
+      let best = 0, run = 0, prev = null;
+      daily.filter(([, m]) => m > 0).map(([d]) => d).sort().forEach(d => {
+        const t = new Date(d + "T12:00:00");
+        run = prev && (t - prev) / 864e5 < 1.5 ? run + 1 : 1; best = Math.max(best, run); prev = t;
+      });
+      return best;
+    })() };
 
     // the three weeks around the big day, so the spike shows (days with no data count as 0)
     const SPAN = 10, t0 = new Date(day + "T12:00:00");
@@ -37,7 +45,7 @@ defineSlide("biggest-day", () => {
         <h1 class="bd8-mins rise d1"><span class="bd8-num" data-count="${mins}">${fmt(mins)}</span><span class="bd8-unit">minutes in one day</span></h1>
         <p class="bd8-when rise d2">that's ${(mins / 60).toFixed(1)} hours, on <b>${new Date(day + "T12:00:00").toLocaleDateString("en-US", { weekday: "long" })}, ${date(day)}</b>.</p>
         <div class="bd8-chart rise d3" id="bd8-chart"></div>
-        ${yr() ? "" : `<p class="bd8-streak rise d4"><b>${st.days}</b> days in a row: your longest streak.</p>`}
+        <p class="bd8-streak rise d4"><b>${st.days}</b> days in a row: your longest streak${yr() ? ` of ${yr()}` : ""}.</p>
       </div>`,
       after() {
         const el = document.getElementById("bd8-chart"); if (!el) return;

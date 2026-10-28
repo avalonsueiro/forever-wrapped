@@ -6,7 +6,7 @@ defineSlide("top-songs", () => {
   if (!list.length) return null;
   const top = list[0].plays || 1;
   // one row per song; the thin bar under it shows plays compared to #1
-  const row = (s, k) => `<li class="ts-row rise d${k + 1}" style="--w:${(s.plays / top * 100).toFixed(1)}%">
+  const row = (s, k) => `<li class="ts-row rise d${k + 1}" style="--w:${Math.min(100, s.plays / top * 100).toFixed(1)}%">
       <span class="ts-n">${k + 1}</span>
       <span class="ts-t"><b>${esc(clean(s.track))}</b><small>${esc(s.artist)}</small></span>
       <span class="ts-v">${fmt(s.plays)}<em> plays</em></span>

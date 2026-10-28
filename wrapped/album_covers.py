@@ -144,8 +144,32 @@ def year_albums(df):
 def album_covers(df):
     """Your top albums' covers, most listened first: [{"src": web path, "glow": neon color}, ...]."""
     cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
+    out, new = _top_covers(df, TOP_ALBUMS, cache)
+    if new:
+        CACHE.write_text(json.dumps(cache, indent=1, ensure_ascii=False))
+        print(f"  album covers: fetched {new}, {len(out)} in use")
+    return out
+
+
+def covers_by_year(df):
+    """{year: covers}: each year's own top albums, so the records on a year's pages are that year's music."""
+    cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
+    out, new = {}, 0
+    for y, sub in df.groupby("year"):
+        covers, n = _top_covers(sub, TOP_ALBUMS, cache)
+        new += n
+        if covers:
+            out[int(y)] = covers
+    if new:
+        CACHE.write_text(json.dumps(cache, indent=1, ensure_ascii=False))
+        print(f"  album covers by year: fetched {new}")
+    return out
+
+
+def _top_covers(df, n, cache):
+    """The covers of the n most played albums in df, and how many had to be fetched."""
     df = df[df["album"].notna() & (df["album"] != "")]
-    ranked = df.groupby(["album", "artist"])["minutes"].sum().nlargest(TOP_ALBUMS).index
+    ranked = df.groupby(["album", "artist"])["minutes"].sum().nlargest(n).index
     out, new = [], 0
     for album, artist in ranked:
         key = f"{album} - {artist}"
@@ -159,7 +183,4 @@ def album_covers(df):
                 continue
         if cache.get(key) and cache[key] not in [c["src"] for c in out]:
             out.append({"src": cache[key], "glow": neon_for(config.WEB_DIR / cache[key]), "album": album, "artist": artist})
-    if new:
-        CACHE.write_text(json.dumps(cache, indent=1, ensure_ascii=False))
-        print(f"  album covers: fetched {new}, {len(out)} in use")
-    return out
+    return out, new

@@ -51,3 +51,11 @@
 .wr-key-row .wr-k b { font-size: 13px; }
 .wr-key-row .wr-k small { font-size: 11px; }
 @keyframes wrKeyIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* one year: the gray calendar grid behind the records (drawn by wrGrid in the js) */
+.wr-grid { position: absolute; inset: 0; z-index: 0; pointer-events: none; animation: wrKeyIn .6s ease-out .1s both; }
+.wr-grid svg { display: block; }
+.wr-gv { stroke: rgb(255 255 255 / .05); stroke-width: 1; }
+.wr-gv-on { stroke: rgb(255 255 255 / .12); }
+.wr-gh { stroke: rgb(255 255 255 / .16); stroke-width: 1.5; stroke-linecap: round; }
+.wr-gd { fill: rgb(255 255 255 / .22); }

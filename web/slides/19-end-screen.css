@@ -33,3 +33,8 @@
 .es-stat b { font-weight: 900; letter-spacing: -.045em; line-height: .9; font-size: min(6.4cqh, 11.5cqw); }
 .es-stat:nth-child(2) b { color: var(--ac); }
 .es-stat span { font-weight: 700; font-size: min(2.5cqh, 4.6cqw); color: rgb(255 255 255 / .6); }
+
+/* "most of my songs were about" above the theme, small like the stat labels */
+.es-theme { display: grid; gap: .5em; justify-items: center; }
+.es-theme .es-id { margin: 0; }
+.es-about { margin: 0; font-weight: 700; font-size: min(2.2cqh, 4.2cqw); color: rgb(255 255 255 / .6); }

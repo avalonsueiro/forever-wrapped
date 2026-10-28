@@ -115,6 +115,13 @@ const LABEL_PHOTOS = (COVERS.length ? COVERS.map(c => c.src)
   : [...new Set(ERAS.flatMap(e => e.photos || []))].map(thumb)).map(encodeURI);
 // each cover's own neon (picked by the build from the cover's colors), for the record glows
 const LABEL_GLOWS = COVERS.length ? COVERS.map(c => c.glow || "#ff2d87") : null;
+// With a year picked, the records carry that year's own albums (all time: your top albums overall)
+const YEAR_COVERS = Object.fromEntries(Object.entries(D.covers_by_year || {}).map(([y, l]) => [y, spreadGlows(l)]));
+const labels = () => {
+  const l = yr() && YEAR_COVERS[yr()];
+  return l && l.length ? { albums: l.map(c => encodeURI(c.src)), glows: l.map(c => c.glow || "#ff2d87") }
+    : { albums: LABEL_PHOTOS, glows: LABEL_GLOWS };
+};
 
 /* ---------------- page registry ---------------- */
 window.SLIDE_DEFS = [];

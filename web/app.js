@@ -14,11 +14,10 @@ function startTrail(s) {
   const c = $("#trail");
   c.getContext("2d").clearRect(0, 0, c.width, c.height);
   if (!s || !s.trail) return;
-  const offset = 0;                     // every page starts from your #1 album; no repeats within a page
+  const L = labels();                   // every page starts from your #1 album (of the picked year); no repeats within a page
   trail = new RecordRing(c, { ...TRAIL_DEFAULTS, paths: s.trail,
     glowColors: s.glow || TRAIL_DEFAULTS.glowColors,
-    albums: [...LABEL_PHOTOS.slice(offset), ...LABEL_PHOTOS.slice(0, offset)],
-    labelGlows: LABEL_GLOWS && [...LABEL_GLOWS.slice(offset), ...LABEL_GLOWS.slice(0, offset)],
+    albums: L.albums, labelGlows: L.glows,
     ...(s.trailOptions || {}) });                                       // a page can override any of these
 }
 
