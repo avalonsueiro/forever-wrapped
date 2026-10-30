@@ -1,27 +1,22 @@
-/* Styles for 08-saddest-day.js only. Prefix every rule with a class or id from that page
-   (e.g. .slide .my-thing) so it can't leak into other pages. */
-
-/* keep the text on the left so the rain on the right has room */
-.slide .sd10 { gap: 22px; width: min(1100px, 100%); }
-.slide .sd10 > * { max-width: min(720px, 62vw); }
-
-/* the date: day on one line, the year under it in the accent */
-.slide .sd10-date { margin: 0; font-weight: 900; line-height: .88; letter-spacing: -0.045em;
-  font-size: clamp(64px, 9.5vw, 168px); text-transform: lowercase; }
-.slide .sd10-date span { display: block; white-space: nowrap; }
-.slide .sd10-year { color: var(--ac); }
-
-/* on repeat: a short list with a thin blue rule down the side, like a streak of rain */
-.slide .sd10-repeat { display: grid; gap: 12px; margin-top: 8px; }   /* no side line, same as page 11 */
-.slide .sd10-label { margin: 0; font-weight: 800; font-size: 14px; letter-spacing: .08em; opacity: .55; }
-.slide .sd10-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: sd10; }
-.slide .sd10-list li { counter-increment: sd10; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  font-size: clamp(18px, 1.9vw, 26px); line-height: 1.15; }
-.slide .sd10-list b { font-weight: 800; letter-spacing: -0.02em; }
-.slide .sd10-list span { font-weight: 600; font-size: .7em; opacity: .55; }
+/* Styles for the saddest and happiest day pages (08 and 09), which share one layout. Every rule starts with .md so nothing leaks. */
+.slide .inner.md { width: min(1100px, 100%); gap: 18px; justify-items: start; }
+.slide .md > * { max-width: min(680px, 56vw); }
+.slide .md .kick { color: var(--ac); margin: 0; }
+.slide .md .md-date { margin: 0; display: grid; font-weight: 900; line-height: .94; letter-spacing: -0.05em;
+  font-size: clamp(64px, 10.5vw, 190px); white-space: nowrap; max-width: none; }
+.slide .md .md-year { color: var(--ac); }
+.slide .md .md-repeat { margin-top: 10px; display: grid; gap: 10px; }
+.slide .md .md-label { margin: 0; font-weight: 800; font-size: 14px; letter-spacing: .08em; opacity: .55; }
+.slide .md ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.slide .md li { display: flex; align-items: baseline; gap: 14px; font-weight: 700; font-size: clamp(18px, 1.7vw, 24px); line-height: 1.2; }
+.slide .md .md-n { color: var(--ac); font-weight: 900; min-width: 1ch; }
 
 @media (max-width: 700px) {
-  .slide .sd10 > * { max-width: 100%; }
-  .slide .sd10-date { font-size: clamp(56px, 19vw, 96px); }
-  .slide .sd10-list li { font-size: 17px; gap: 2px 10px; }      /* same as the happiest day: artist on the song's line */
+  .slide .md > * { max-width: 100%; }
+  .slide .md .md-date { font-size: clamp(56px, 21vw, 96px); }
+  .slide .md li { font-size: 17px; }
 }
+
+/* artist after each song, quiet */
+.slide .md li { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.slide .md .md-a { font-weight: 600; font-size: .62em; color: rgb(255 255 255 / .55); }

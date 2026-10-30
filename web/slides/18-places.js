@@ -16,8 +16,7 @@ defineSlide("places", () => {
       return [{ r: R, points: shapeSpaced(curve, 2 * R * SHAPE_OVERLAP) }];
     };
 
-    return { theme: "lime",   // no records on a wide screen (the map is the picture); a phone gets the flight under it
-      trail: (W, H) => (W < 700 ? flight(W, H) : []),
+    return { theme: "lime",   // no records here: the map is the picture
       html: `<div class="inner pl"><div class="row pl-row">
       <div class="grow pl-copy"><p class="kick rise">You pressed play in</p>
         <h1 class="big rise d1 pl-head"><span class="pl-n">${cs.length}</span><br>${cs.length === 1 ? "country" : "countries"}</h1>

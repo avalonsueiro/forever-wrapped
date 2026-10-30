@@ -67,16 +67,25 @@ def run(photo_dir: Path):
 
     config.PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
     places = {}
+    used = []          # every photo placed so far: eras can overlap, and only one photo per day overall
+    near = lambda p, others: any(p["taken"].date() == o["taken"].date() for o in others)
     for e in eras:
         start, end = date.fromisoformat(e["start"]), date.fromisoformat(e["end"])
         folder_name = f"{e['start']}_to_{e['end']}"
         folder = config.PHOTOS_DIR / folder_name
         folder.mkdir(exist_ok=True)
         inside = sorted((p for p in photos if start <= p["taken"].date() <= end), key=lambda p: p["taken"])
-        # spread the picks evenly across the era
-        n = min(PHOTOS_PER_ERA, len(inside))
-        picks = [inside[round(i * (len(inside) - 1) / max(1, n - 1))] for i in range(n)] if n else []
-        for src in {id(x): x for x in picks}.values():          # the same photo only once
+        # spread the picks evenly across the era: for each evenly spaced moment, the closest photo
+        # from a day that hasn't been used yet (in this era or another)
+        n, picks = min(PHOTOS_PER_ERA, len(inside)), []
+        for i in range(n):
+            target = inside[round(i * (len(inside) - 1) / max(1, n - 1))]["taken"]
+            ok = [p for p in inside if not near(p, picks + used)]
+            if not ok:
+                break
+            picks.append(min(ok, key=lambda p: abs(p["taken"] - target)))
+        used += picks
+        for src in picks:
             out = folder / f"{src['taken']:%Y-%m-%d_%H%M%S}.jpg"
             try:
                 from PIL import ImageOps

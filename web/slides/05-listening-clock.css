@@ -6,7 +6,6 @@
 .slide .lc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, min(470px, 58vh)); align-items: center; gap: 40px 64px; }
 .slide .lc-text { display: grid; gap: 14px; min-width: 0; }
 .slide .lc-big { font-size: clamp(48px, 7.4vw, 128px); }
-.slide .lc-peak { color: var(--ac); font-weight: 900; }
 .slide .lc-clock { width: 100%; }
 .slide .lc-clock svg text.lc-q { font-size: 15px; font-weight: 800; opacity: .7; }
 .slide .lc-clock svg text.lc-hour { font-size: 34px; font-weight: 900; letter-spacing: -0.03em; }

@@ -27,8 +27,7 @@ defineSlide("minutes", () => {
     return { theme: "sunset", html: `<div class="inner mn-wrap">
       <p class="kick rise">You listened for</p>
       <h1 class="huge rise d1 mn-num" data-count="${m}">${fmt(m)}</h1>
-      <p class="mid rise d2 mn-unit">minutes${yr() ? ` in ${yr()}` : ""}</p>
-      <p class="sub rise d3 mn-days">That's <b>${fmt(m / 1440)}</b> full days of music.</p></div>`,
+      <p class="mid rise d2 mn-unit">minutes${yr() ? ` in ${yr()}` : ""}</p></div>`,
       trail: minutesPile,
       glow: ["#ff2d87", "#ffe500", "#ff2d87", "#9d4dff"],
       trailOptions: { totalSeconds: 2.6 } };

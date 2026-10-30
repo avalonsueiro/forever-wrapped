@@ -16,7 +16,7 @@ let eraTrail = null;
 function stopEraTrail() { if (eraTrail) { eraTrail.destroy(); eraTrail = null; } }
 
 // Where the records go: one slow wave down the empty strip right of the page (the content sits
-// left of centre to make room). On narrow screens, one row cut in half by the bottom edge.
+// left of centre to make room). On narrow screens (phones) there's no room, so no records.
 function eraPaths(W, H) {
   const unit = Math.min(H, W * 1.2);
   const parts = [...eraView.querySelectorAll(".ev-text, .ev-photos")].map(el => el.getBoundingClientRect()).filter(r => r.width);
@@ -28,8 +28,7 @@ function eraPaths(W, H) {
     const amp = Math.max(0, right / 2 - R - 24), x = W - right / 2 + 8;
     return [chain(R, t => [x - amp * Math.sin(t * 2.5 * Math.PI), lerp(1.08, -0.08, t) * H])];
   }
-  const r = Math.min(unit * 0.07, 36);
-  return [chain(r, t => [lerp(-0.05, 1.05, t) * W, H])];
+  return [];
 }
 
 function startEraTrail(e) {

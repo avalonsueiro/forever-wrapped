@@ -98,12 +98,12 @@ else {
   // screen edges, so the edges cut them in half. RecordRing puts record centers at
   // size/2 - radius - 3 from the middle (radius = size * sizeFraction / 2); solve that for size.
   const RING_OVERLAP = 0.82;
-  const ringFraction = () => innerWidth < 700 ? 0.25 : 0.19;   // each record's size as a share of the ring (bigger on a phone)
+  const ringFraction = () => innerWidth < 700 ? 0.2 : 0.19;   // each record's size as a share of the ring (bigger on a phone)
   const ringBox = $(".intro-ring");
   // On a phone (narrow screen) that ring would be far wider than the screen, so only its top and
   // bottom would show; there it's sized from the width instead, a little wider than the screen so
   // the side records are just clipped and the whole circle reads.
-  const ringSize = () => innerWidth < 700 ? innerWidth * 1.15 : (innerHeight / 2 + 3) / (0.5 - ringFraction() / 2);
+  const ringSize = () => innerWidth < 700 ? innerWidth * 1.42 : (innerHeight / 2 + 3) / (0.5 - ringFraction() / 2);
   const evenCount = size => {                    // an even number of records puts one exactly at the bottom
     const d = size * ringFraction(), n = Math.round((2 * Math.PI * (size / 2 - d / 2 - 3)) / (d * RING_OVERLAP));
     return n + (n % 2);
@@ -169,6 +169,25 @@ else {
     if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
     if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
   });
+  // Swipe left or right (phones): the next or previous page, or era when an era is open. A short
+  // move is a tap and a mostly up-and-down one is a scroll, so those are left alone, and so is a
+  // swipe along the row of year buttons (it scrolls sideways).
+  let touch = null;
+  document.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    touch = e.touches.length === 1 && !e.target.closest(".yearpick") ? { x: t.clientX, y: t.clientY } : null;
+  }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (!touch) return;
+    const t = e.changedTouches[0], dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < 1.5 * Math.abs(dy)) return;
+    const d = dx < 0 ? 1 : -1;                                   // finger moves left: forward
+    if (!intro.hidden && !intro.classList.contains("out")) { if (d === 1) start(); return; }
+    if (!eraView.hidden) { openEra(openIndex + d); return; }
+    if (d === 1 && current && current.noForward) return;         // the end screen: back works, forward doesn't
+    go(d);
+  }, { passive: true });
   // Links straight to a page, for checking pages one at a time:
   //   index.html?slide=7   page 7, title page skipped     ?era=3   era page 3     ?year=2024
   const q = new URLSearchParams(location.search);

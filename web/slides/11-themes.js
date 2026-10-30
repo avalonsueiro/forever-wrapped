@@ -32,7 +32,8 @@ defineSlide("themes", () => {
         <h1 class="big th-big rise d1" style="color:${color(keep[0])}">${esc(keep[0])}</h1>
       </div>
       <div class="chart th-chart rise d2" id="stream"></div>
-      <div class="th-legend rise d3">${keep.map((t, k) => `<button type="button" data-t="${esc(t)}" class="${k === 0 ? "th-top" : ""}"><i style="background:${color(t)}"></i>${esc(t)}</button>`).join("")}</div>
+      <div class="th-legend rise d3">${keep.map((t, k) => (k === Math.ceil(keep.length / 2) ? `<b class="th-br"></b>` : "") +   // phone: splits the key into two even lines
+        `<button type="button" data-t="${esc(t)}" class="${k === 0 ? "th-top" : ""}"><i style="background:${color(t)}"></i>${esc(t)}</button>`).join("")}</div>
     </div>`,
       after() {
         const pick = (t, e) => showThemeSongs(T, t, color, e);

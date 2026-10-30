@@ -12,8 +12,6 @@
 .slide .bd8 .bd8-chart { width: min(560px, 100%); margin-top: 10px; }
 .slide .bd8 .bd8-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .slide .bd8 .bd8-chart svg text { font-size: 13px; }
-.slide .bd8 .bd8-streak { margin: 4px 0 0; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); opacity: .85; }
-.slide .bd8 .bd8-streak b { font-weight: 900; color: var(--ac); }
 
 @media (max-width: 700px) {
   .slide .bd8 > * { max-width: 100%; }

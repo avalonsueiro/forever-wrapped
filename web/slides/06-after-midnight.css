@@ -17,6 +17,9 @@
 @media (max-width: 700px) {
   .slide .am { margin: 4vh 0 0; }
   .slide .am-mood { font-size: clamp(48px, 15vw, 60px); }
-  .slide .am-legend .legend { font-size: 13px; gap: 6px 14px; }
+  .slide .am-legend .legend { font-size: 13px; gap: 6px 14px; justify-content: center; }
 }
 
+/* the line break in the mood key: only on a phone */
+.slide .am-legend .am-br { display: none; }
+@media (max-width: 700px) { .slide .am-legend .am-br { display: block; flex-basis: 100%; height: 0; } }

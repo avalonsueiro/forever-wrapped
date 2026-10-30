@@ -5,13 +5,10 @@
 .slide .mn-wrap .kick { opacity: .9; margin-bottom: 4px; }
 .slide .mn-wrap .mn-num { font-size: clamp(76px, 17vw, 290px); line-height: .85; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .slide .mn-wrap .mn-unit { color: var(--ac); font-size: clamp(36px, 5vw, 84px); margin-top: .3em; }
-.slide .mn-wrap .mn-days { max-width: none; margin-top: 18px; }
-.slide .mn-wrap .mn-days b { font-weight: 900; color: #fff; }
 
 /* phone: the number has to fit the width; text sits in the upper middle above the pile */
 @media (max-width: 700px) {
   .slide .mn-wrap { margin-top: 14vh; margin-bottom: 0; gap: 4px; }
   .slide .mn-wrap .mn-num { font-size: 15vw; }
   .slide .mn-wrap .mn-unit { font-size: 32px; }
-  .slide .mn-wrap .mn-days { margin-top: 14px; max-width: 24ch; }
 }

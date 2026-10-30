@@ -17,7 +17,8 @@ HOW THEY'RE PICKED (PHOTOS_PER_ERA per era, default 6):
     people in it, +0.5 for selfies
   * the era is split into equal time slices and the best photo of each slice is taken, so the picks
     spread across the whole era instead of all coming from one weekend
-  * photos taken within 3 minutes of one already picked are skipped (no near-duplicates)
+  * no photo is used in two eras (eras can overlap), and only one photo per day is used across all
+    eras, so the same moment, party or beach day never shows up twice
   * with --ai, the top candidates go to Claude with the era's name and drivers, and it picks the set
     that best captures the era
 Photos you've already put in an era's folder count toward the total and are never removed.
@@ -47,7 +48,6 @@ if not hasattr(config, "ERA_NOTES"):
     config.ERA_NOTES = config.ROOT / "era_notes.csv"
 
 PHOTOS_PER_ERA = 6
-NEAR_DUPLICATE_MINUTES = 3
 AI_CANDIDATES = 16
 IMAGE_TYPES = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
@@ -120,8 +120,14 @@ def city_of(p):
 
 
 # ------------------------------------------------------------------ choosing
-def pick(candidates, start: date, end: date, n: int):
-    """Best photo per time slice, then fill with the best of the rest; no near-duplicates."""
+def too_close(p, others) -> bool:
+    """Taken on the same day as any of `others`: one photo per day, so no moment or event twice."""
+    return any(p.date.date() == c.date.date() for c in others)
+
+
+def pick(candidates, start: date, end: date, n: int, taken=()):
+    """Best photo per time slice, then fill with the best of the rest; nothing near a photo already
+    chosen or already `taken` (in this era's folder or any other era's)."""
     if not candidates:
         return []
     span = max(1, (end - start).days + 1)
@@ -132,7 +138,7 @@ def pick(candidates, start: date, end: date, n: int):
     chosen = []
 
     def far_enough(p):
-        return all(abs((p.date - c.date).total_seconds()) > NEAR_DUPLICATE_MINUTES * 60 for c in chosen)
+        return not too_close(p, chosen) and not too_close(p, taken)
 
     for sl in slices:
         for p in sorted(sl, key=photo_score, reverse=True):
@@ -245,7 +251,7 @@ def download(p, folder: Path, name: str):
     want = folder / name
     if got != want:                             # osxphotos may write .jpeg; keep our .jpg name
         got.rename(want)
-    return want
+    return want if real_jpeg(want) else None
 
 
 def export(p, folder: Path):
@@ -261,7 +267,16 @@ def export(p, folder: Path):
         r = subprocess.run(["sips", "-s", "format", "jpeg", str(src), "--out", str(out)], capture_output=True)
         if r.returncode or not out.exists():
             return False
-    return True
+    return real_jpeg(out)
+
+
+def real_jpeg(f: Path) -> bool:
+    """Make sure f is really a JPEG: an iPhone photo can come back as HEIC with a .jpg name, which
+    browsers can't show. Converts it in place with sips."""
+    if f.read_bytes()[:3] == b"\xff\xd8\xff":
+        return True
+    r = subprocess.run(["sips", "-s", "format", "jpeg", str(f), "--out", str(f)], capture_output=True)
+    return not r.returncode and f.read_bytes()[:3] == b"\xff\xd8\xff"
 
 
 # ------------------------------------------------------------------ notes file
@@ -339,6 +354,12 @@ def run(use_ai: bool = False):
                 if not any(x.stem.endswith("_" + u) for x in (config.PHOTOS_DIR / f).glob("*"))}
     if rejected:
         print(f"  {len(rejected)} photo{'s' if len(rejected) != 1 else ''} you deleted will not be picked again")
+    # every photo already in any era's folder: none of them (or anything else from the same day)
+    # is picked again
+    by_uuid = {p.uuid[:8]: p for p in photos}
+    used = {f.stem.split("_")[-1] for d in config.PHOTOS_DIR.iterdir() if d.is_dir()
+            for f in d.iterdir() if f.suffix.lower() in IMAGE_TYPES}
+    taken = [by_uuid[u] for u in used if u in by_uuid]
     new_log = []
     places = {}
     for e in eras:
@@ -349,19 +370,23 @@ def run(use_ai: bool = False):
         files = [f for f in folder.iterdir() if f.suffix.lower() in IMAGE_TYPES]
         have = len(files)
         need = max(0, PHOTOS_PER_ERA - have)
-        in_folder = {f.stem.split("_")[-1] for f in files}    # our exports end in _<uuid8>
         cands = [p for p in photos if start <= p.date.date() <= end
-                 and p.uuid[:8] not in in_folder and p.uuid[:8] not in rejected]
+                 and p.uuid[:8] not in used and p.uuid[:8] not in rejected and not too_close(p, taken)]
 
         picked = []
         if need and cands:
             if client:
                 top = sorted(cands, key=photo_score, reverse=True)[:AI_CANDIDATES * 2]
                 top = pick(top, start, end, AI_CANDIDATES)          # spread out before Claude sees them
-                picked = ai_pick(client, e, top, need)
+                picked = []
+                for p in ai_pick(client, e, top, need):              # Claude's picks, minus same-moment pairs
+                    if not too_close(p, picked):
+                        picked.append(p)
             else:
-                picked = pick(cands, start, end, need)
+                picked = pick(cands, start, end, need, taken)
         done = [p for p in picked if export(p, folder)]
+        used |= {p.uuid[:8] for p in done}
+        taken += done
         exported = len(done)
         new_log += [f"{folder_name} {p.uuid[:8]}" for p in done]
 

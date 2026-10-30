@@ -39,7 +39,7 @@
 @media (max-width: 700px) {
   .slide .th { margin-top: 64px; gap: 16px; }
   .slide .th-chart svg text.th-yr { font-size: 13px; }
-  .slide .th-legend { gap: 6px 16px; font-size: 14px; }
+  .slide .th-legend { gap: 6px 16px; font-size: 14px; justify-content: center; }
 }
 
 /* the "click to flip" hint sits on the bottom row of records here; a dark halo keeps it readable */
@@ -49,3 +49,7 @@
 .th-guide { stroke: #fff; stroke-opacity: .6; stroke-width: 1.5; pointer-events: none; }
 .th-band { transition: opacity .15s ease; }
 .th-band.th-dim { opacity: .35; }
+
+/* the line break in the theme key: only on a phone */
+.slide .th-legend .th-br { display: none; }
+@media (max-width: 700px) { .slide .th-legend .th-br { display: block; flex-basis: 100%; height: 0; } }

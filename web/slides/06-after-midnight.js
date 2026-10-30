@@ -30,7 +30,8 @@ defineSlide("after-midnight", () => {
       <p class="kick rise am-kick">${yr() ? `in ${yr()}, after midnight you got` : "after midnight you get"}</p>
       <h1 class="huge rise d1 am-mood" style="color:${GROUP_COLOR[night]}">${night}</h1>
       <div class="chart rise d2 am-strip" id="hourstrip"></div>
-      <div class="rise d3 am-legend"><div class="legend">${KEYS.map(g => `<span><i style="background:${GROUP_COLOR[g]}"></i>${g}</span>`).join("")}</div></div></div>`,
+      <div class="rise d3 am-legend"><div class="legend">${KEYS.map((g, k) => (k === Math.ceil(KEYS.length / 2) ? `<b class="am-br"></b>` : "") +   // phone: splits the key into two even lines
+        `<span><i style="background:${GROUP_COLOR[g]}"></i>${g}</span>`).join("")}</div></div></div>`,
       after() {
         const box = document.getElementById("hourstrip");
         const W = Math.max(300, box.clientWidth || 1100), narrow = W < 600;
