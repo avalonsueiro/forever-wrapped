@@ -1,8 +1,7 @@
-/* Page 14: most of your songs were about ... (theme streamgraph).
+/* Page 11: most of your songs were about ... (theme streamgraph).
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style.
-   Wide screens: time runs left to right. Phones: time runs top to bottom, so the stream uses the tall
-   screen instead of shrinking to a thin strip. */
+   Time runs left to right on every screen; a phone gets a shorter stream sized to its width. */
 const THEMES14_COLORS = ["#ff2d87", "#ffe500", "#2f6bff", "#c8ff00", "#ff8a00", "#9d4dff"];
 
 // Two wavy rows of records that mirror each other, one under the top bar and one cut by the bottom
@@ -77,7 +76,7 @@ function closeThemeSongs() {
 function drawThemeStream(T, keep, color, pick) {
   const box = document.getElementById("stream");
   if (!box) return;
-  const tall = innerWidth < 700;                         // phone: time runs down the screen
+  const phone = innerWidth < 700;                        // same left-to-right stream, sized to the phone
   const rows = T.months.map((m, k) => Object.fromEntries(keep.map(t => [t, T.series[t][k]])));
   const st = d3.stack().keys(keep).offset(d3.stackOffsetWiggle).order(d3.stackOrderInsideOut)(rows);
   const lo = d3.min(st, s => d3.min(s, d => d[0])), hi = d3.max(st, s => d3.max(s, d => d[1]));
@@ -91,39 +90,21 @@ function drawThemeStream(T, keep, color, pick) {
 
   const svg = d3.select(box).append("svg");
   let W, H, time, band, area;
-  if (tall) {
-    W = Math.max(260, box.clientWidth || 330);
-    H = Math.round(Math.min(440, Math.max(300, innerHeight * 0.46)));
-    const gut = 44;                                        // room for the year labels on the left
-    time = d3.scaleLinear().domain([0, T.months.length - 1]).range([6, H - 6]);
-    band = d3.scaleLinear().domain([lo, hi]).range([gut, W]);
-    area = d3.area().y((d, k) => time(k)).x0(d => band(d[0])).x1(d => band(d[1])).curve(d3.curveBasis);
-    svg.attr("viewBox", `0 0 ${W} ${H}`).attr("class", "th-tall");
-    let last = -Infinity;
-    yearStarts.forEach(({ y, k }) => {
-      const p = time(k);
-      if (p - last < 28) return;                           // skip a year that would sit on top of the last
-      last = p;
-      svg.append("line").attr("class", "th-grid").attr("x1", gut - 6).attr("x2", W).attr("y1", p).attr("y2", p);
-      svg.append("text").attr("class", "th-yr").attr("x", 0).attr("y", p + 5).text(y);
-    });
-  } else {
-    W = Math.max(600, box.clientWidth || 1100);
-    H = Math.round(Math.min(380, Math.max(200, innerHeight * 0.36)));
-    const axis = 30;                                       // room for the year labels underneath
-    time = d3.scaleLinear().domain([0, T.months.length - 1]).range([0, W]);
-    band = d3.scaleLinear().domain([lo, hi]).range([H - axis - 4, 4]);
-    area = d3.area().x((d, k) => time(k)).y0(d => band(d[0])).y1(d => band(d[1])).curve(d3.curveBasis);
-    svg.attr("viewBox", `0 0 ${W} ${H}`);
-    let last = -Infinity;
-    yearStarts.forEach(({ y, k }) => {
-      const p = time(k);
-      if (p - last < 56) return;
-      last = p;
-      svg.append("line").attr("class", "th-grid").attr("x1", p).attr("x2", p).attr("y1", 0).attr("y2", H - axis + 4);
-      svg.append("text").attr("class", "th-yr").attr("x", p + 2).attr("y", H - 4).text(y);
-    });
-  }
+  W = Math.max(phone ? 280 : 600, box.clientWidth || 1100);
+  H = Math.round(phone ? Math.min(400, Math.max(240, innerHeight * 0.44)) : Math.min(380, Math.max(200, innerHeight * 0.36)));
+  const axis = 30;                                       // room for the year labels underneath
+  time = d3.scaleLinear().domain([0, T.months.length - 1]).range([0, W]);
+  band = d3.scaleLinear().domain([lo, hi]).range([H - axis - 4, 4]);
+  area = d3.area().x((d, k) => time(k)).y0(d => band(d[0])).y1(d => band(d[1])).curve(d3.curveBasis);
+  svg.attr("viewBox", `0 0 ${W} ${H}`);
+  let last = -Infinity;
+  yearStarts.forEach(({ y, k }) => {
+    const p = time(k);
+    if (p - last < (phone ? 40 : 56)) return;       // skip a year that would sit on top of the last
+    last = p;
+    svg.append("line").attr("class", "th-grid").attr("x1", p).attr("x2", p).attr("y1", 0).attr("y2", H - axis + 4);
+    svg.append("text").attr("class", "th-yr").attr("x", p + 2).attr("y", H - 4).text(y);
+  });
 
   // the bands; the top theme drawn last so it sits on top where curves touch
   svg.append("g").selectAll("path").data(st).join("path")
@@ -138,13 +119,13 @@ function drawThemeStream(T, keep, color, pick) {
     .attr("fill", "transparent").style("cursor", "pointer")
     .on("mousemove", e => {
       const [px, py] = d3.pointer(e);
-      const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(tall ? py : px))));
-      const at = tall ? band.invert(px) : band.invert(py);
+      const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(px))));
+      const at = band.invert(py);
       const under = st.find(s => at >= s[k][0] && at <= s[k][1]);
       const tot = d3.sum(keep, t => rows[k][t]) || 1;
       const p = time(k);
-      guide.style("display", null).attr(tall ? "y1" : "x1", p).attr(tall ? "y2" : "x2", p)
-        .attr(tall ? "x1" : "y1", tall ? 0 : 0).attr(tall ? "x2" : "y2", tall ? W : H - 26);
+      guide.style("display", null).attr("x1", p).attr("x2", p)
+        .attr("y1", 0).attr("y2", H - 26);
       tip.innerHTML = `<b>${monthName(T.months[k])}</b><br>` + keep.slice().sort((a, b) => rows[k][b] - rows[k][a])
         .filter(t => rows[k][t] > 0).map(t => `<span style="color:${color(t)}">●</span> ${t === (under && under.key) ? `<b>${t}</b>` : t} ${Math.round(rows[k][t] / tot * 100)}%`).join("<br>");
       tip.hidden = false;
@@ -153,8 +134,8 @@ function drawThemeStream(T, keep, color, pick) {
     })
     .on("click", e => {                                  // pick the band under the pointer
       const [px, py] = d3.pointer(e);
-      const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(tall ? py : px))));
-      const at = tall ? band.invert(px) : band.invert(py);
+      const k = Math.max(0, Math.min(T.months.length - 1, Math.round(time.invert(px))));
+      const at = band.invert(py);
       const under = st.find(s => at >= s[k][0] && at <= s[k][1]);
       if (under && pick) pick(under.key, e);
     })

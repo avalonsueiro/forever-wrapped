@@ -1,4 +1,4 @@
-/* Page 09: your year in moods (seasons mood wheel).
+/* Page 07: your year in moods (seasons mood wheel).
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("seasons", () => {

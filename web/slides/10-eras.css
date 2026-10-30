@@ -1,4 +1,4 @@
-/* Styles for 13-eras.js only. Prefix every rule with a class or id from that page
+/* Styles for 10-eras.js only. Prefix every rule with a class or id from that page
    (e.g. .slide .my-thing) so it can't leak into other pages. */
 
 .slide .ec { gap: clamp(18px, 3.2vh, 34px); }

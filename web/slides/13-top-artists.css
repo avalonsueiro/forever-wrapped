@@ -1,4 +1,4 @@
-/* Styles for 05-top-artists.js only. Every rule starts with .ta so nothing leaks out. */
+/* Styles for 13-top-artists.js only. Every rule starts with .ta so nothing leaks out. */
 
 /* list sits on the left so the records have the right side to themselves */
 .slide .ta { width: min(1080px, 66vw); justify-self: start; margin: 0 0 0 max(0px, 5vw - 28px); gap: clamp(18px, 3.5vh, 36px); }

@@ -12,10 +12,12 @@
   font-size: clamp(72px, min(12vw, 19vh), 230px); }
 .wr-title span { display: block; }
 
-/* phone: smaller, still one word per line, no overflow */
+/* phone: the records are the picture, so the title is one small line above them */
 @media (max-width: 600px) {
-  .wr { padding-top: 4vh; }
-  .wr-title { font-size: clamp(64px, 24vw, 120px); }
+  .wr { padding-top: 0; gap: 4px; }
+  .wr-kick { font-size: 16px; }
+  .wr-title { font-size: clamp(30px, 9.5vw, 40px); line-height: 1; letter-spacing: -0.035em; }
+  .wr-title span { display: inline; }
 }
 
 /* year labels beside the square of days (placed by wrLabels in the js) */
@@ -38,18 +40,13 @@
 .wr-tick { position: absolute; transform: translate(-50%, -100%); font-weight: 600; font-size: 11px; color: rgb(255 255 255 / .4); }
 @keyframes wrYearIn { from { opacity: 0; transform: translate(-6px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
 
-/* the key: used when years are too thin to label beside their rows (and always on a phone) */
+/* the key: used when years are too thin to label beside their rows */
 .wr-years.wr-key { inset: auto; position: absolute; display: grid; gap: 10px; align-content: start; }
-.wr-key.wr-key-row { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 .wr-k { white-space: nowrap; display: grid; grid-template-columns: 10px auto; column-gap: 8px; align-items: center; line-height: 1.05;
   opacity: 0; animation: wrKeyIn .4s ease-out forwards; }
 .wr-k i { grid-row: span 2; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 .wr-k b { font-weight: 900; font-size: 16px; letter-spacing: -0.02em; }
 .wr-k small { font-weight: 600; font-size: 12px; color: rgb(255 255 255 / .6); }
-.wr-key-row .wr-k { grid-template-columns: 9px auto auto; column-gap: 6px; }
-.wr-key-row .wr-k i { grid-row: auto; width: 9px; height: 9px; }
-.wr-key-row .wr-k b { font-size: 13px; }
-.wr-key-row .wr-k small { font-size: 11px; }
 @keyframes wrKeyIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 /* one year: the gray calendar grid behind the records (drawn by wrGrid in the js) */
@@ -59,3 +56,13 @@
 .wr-gv-on { stroke: rgb(255 255 255 / .12); }
 .wr-gh { stroke: rgb(255 255 255 / .16); stroke-width: 1.5; stroke-linecap: round; }
 .wr-gd { fill: rgb(255 255 255 / .22); }
+
+/* phone: year labels in the narrow gutter right of the records, the day count under the year */
+.wr-phone .wr-year { flex-direction: column; align-items: flex-start; gap: 0; }
+.wr-phone .wr-year b { font-size: 14px; }
+.wr-phone .wr-year small { font-size: 10px; }
+.wr-phone.wr-key { gap: 8px; }
+.wr-phone .wr-k { grid-template-columns: 8px auto; column-gap: 5px; }
+.wr-phone .wr-k i { width: 8px; height: 8px; }
+.wr-phone .wr-k b { font-size: 13px; }
+.wr-phone .wr-k small { font-size: 10px; }

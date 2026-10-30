@@ -30,7 +30,7 @@
 .ly-wrap { padding-bottom: 32px; }
 @media (max-width: 700px) {
   .ly-wrap { --ly-h: clamp(170px, 30vh, 260px); }
-  .ly-wrap .ly-head .huge { font-size: clamp(88px, 28vw, 140px); }
+  .ly-wrap .ly-head .huge { font-size: clamp(60px, 18vw, 72px); }
 }
 
 /* "2026 is on track to beat it": only when the current year is ahead of the loudest year's pace */
@@ -41,7 +41,7 @@
 .ly-wrap .ly-head .huge.ly-month { font-size: clamp(64px, min(11vw, 22vh), 210px); }
 .ly-wrap .ly-12 { gap: clamp(3px, 1vw, 14px); }
 @media (max-width: 700px) {
-  .ly-wrap .ly-head .huge.ly-month { font-size: clamp(56px, 17vw, 110px); }
+  .ly-wrap .ly-head .huge.ly-month { font-size: clamp(44px, 13vw, 56px); }
   .ly-wrap .ly-12 .ly-v { font-size: 9px; }
   .ly-wrap .ly-12 .ly-y { font-size: 10px; }
 }

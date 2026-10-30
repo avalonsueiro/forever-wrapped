@@ -1,4 +1,4 @@
-/* Page 07: night owl / early bird (24-hour listening clock).
+/* Page 05: night owl / early bird (24-hour listening clock).
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 

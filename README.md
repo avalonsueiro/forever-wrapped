@@ -188,6 +188,10 @@ any photos you added, so only put it online if you're happy for people to see th
 a line like `Song Title,Artist Name,sad`, and run `python run.py build`. The moods are hyped, happy,
 sad, lonely, calm, nostalgic, hopeful, angry, anxious and romantic.
 
+**An era's name doesn't fit.** `python run.py eras --names-only` asks Claude to rename your eras
+without finding them again, so your photos and `era_notes.csv` stay matched (about a cent). Then run
+`python run.py build`.
+
 **"No Spotify history found".** Check that the zip (or its folder) is inside `data/raw/`, and that
 it's the **Extended streaming history** download: it has files named like
 `Streaming_History_Audio_2023_4.json`.

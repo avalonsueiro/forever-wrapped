@@ -1,4 +1,4 @@
-/* Styles for 10-saddest-day.js only. Prefix every rule with a class or id from that page
+/* Styles for 08-saddest-day.js only. Prefix every rule with a class or id from that page
    (e.g. .slide .my-thing) so it can't leak into other pages. */
 
 /* keep the text on the left so the rain on the right has room */
@@ -23,6 +23,5 @@
 @media (max-width: 700px) {
   .slide .sd10 > * { max-width: 100%; }
   .slide .sd10-date { font-size: clamp(56px, 19vw, 96px); }
-  .slide .sd10-list li { font-size: 19px; gap: 2px 10px; }
-  .slide .sd10-list span { flex-basis: 100%; padding-left: calc(1ch + 10px); }
+  .slide .sd10-list li { font-size: 17px; gap: 2px 10px; }      /* same as the happiest day: artist on the song's line */
 }

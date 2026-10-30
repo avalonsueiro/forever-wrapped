@@ -20,7 +20,7 @@
 .slide .tc-out .tc-list li { text-decoration: line-through; text-decoration-thickness: .06em; text-decoration-color: rgba(255, 255, 255, .3); }
 
 @media (max-width: 700px) {
-  .slide .tc-years { font-size: 19vw; }
+  .slide .tc-years { font-size: 14vw; }
   .slide .tc-cols { grid-template-columns: 1fr; gap: 26px; }
-  .slide .tc-list { font-size: 9vw; }
+  .slide .tc-list { font-size: 7vw; }
 }

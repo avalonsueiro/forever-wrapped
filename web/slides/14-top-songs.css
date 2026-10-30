@@ -1,4 +1,4 @@
-/* Styles for 06-top-songs.js only. Every rule starts with .ts so it can't leak into other pages. */
+/* Styles for 14-top-songs.js only. Every rule starts with .ts so it can't leak into other pages. */
 
 /* leave room at the bottom for the wave of records */
 .slide .ts { width: min(1100px, calc(100vw - 56px)); gap: clamp(6px, 1.2vh, 14px); margin-bottom: clamp(70px, 15vh, 170px); }

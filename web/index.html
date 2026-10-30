@@ -120,10 +120,10 @@ button { font: inherit; color: inherit; }
 .slide > .song-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block; }
 .slide:has(> .song-cover) > .inner { padding-right: calc(min(30vw, 50vh) + 4vw) !important; }
 @media (max-width: 700px) {
-  .slide > .song-cover { top: auto; bottom: 7vh; right: 50%; transform: translateX(50%) rotate(-3deg); width: min(56vw, 30vh); }
-  .slide:has(> .song-cover) > .inner { padding-right: 0 !important; padding-bottom: 34vh; }
+  .slide > .song-cover { top: auto; bottom: 8vh; right: 50%; transform: translateX(50%) rotate(-3deg); width: min(68vw, 36vh); }
+  .slide:has(> .song-cover) > .inner { padding-right: 0 !important; padding-bottom: 42vh; }
 }
-/* a small album cover in front of a song in a list (pages 10 and 11), so it reads as a song */
+/* a small album cover in front of a song in a list (the saddest and happiest day pages), so it reads as a song */
 .tr-cover { width: 1.6em; height: 1.6em; border-radius: 4px; object-fit: cover; flex: 0 0 auto; align-self: center;
   box-shadow: 0 0 12px 1px color-mix(in srgb, var(--glow, #fff) 55%, transparent); }
 .measuring, .measuring * { animation: none !important; transition: none !important; }
@@ -174,7 +174,10 @@ svg text { fill: var(--fg); font: 800 13px var(--display); }
 @media (max-width: 700px) {
   .slide { padding-top: 104px; align-content: start; }
   .nav-hint { display: none; }
-  .yearpick { display: none; }
+  /* the year buttons: one row under the progress bar, scrolling sideways if there are many years */
+  .yearpick { margin: 0; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; gap: 5px; }
+  .yearpick::-webkit-scrollbar { display: none; }
+  .yearpick button { flex: none; font-size: 12px; padding: 3px 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rise, .spin, .bars i.now b { animation: none; }
@@ -184,17 +187,17 @@ svg text { fill: var(--fg); font: 800 13px var(--display); }
 <link rel="stylesheet" href="slides/01-whole-record.css">
 <link rel="stylesheet" href="slides/02-minutes.css">
 <link rel="stylesheet" href="slides/03-loudest-year.css">
-<link rel="stylesheet" href="slides/04-top-artist.css">
-<link rel="stylesheet" href="slides/05-top-artists.css">
-<link rel="stylesheet" href="slides/06-top-songs.css">
-<link rel="stylesheet" href="slides/07-listening-clock.css">
-<link rel="stylesheet" href="slides/08-biggest-day.css">
-<link rel="stylesheet" href="slides/09-seasons.css">
-<link rel="stylesheet" href="slides/10-saddest-day.css">
-<link rel="stylesheet" href="slides/11-happiest-day.css">
-<link rel="stylesheet" href="slides/12-after-midnight.css">
-<link rel="stylesheet" href="slides/13-eras.css">
-<link rel="stylesheet" href="slides/14-themes.css">
+<link rel="stylesheet" href="slides/04-biggest-day.css">
+<link rel="stylesheet" href="slides/05-listening-clock.css">
+<link rel="stylesheet" href="slides/06-after-midnight.css">
+<link rel="stylesheet" href="slides/07-seasons.css">
+<link rel="stylesheet" href="slides/08-saddest-day.css">
+<link rel="stylesheet" href="slides/09-happiest-day.css">
+<link rel="stylesheet" href="slides/10-eras.css">
+<link rel="stylesheet" href="slides/11-themes.css">
+<link rel="stylesheet" href="slides/12-top-artist.css">
+<link rel="stylesheet" href="slides/13-top-artists.css">
+<link rel="stylesheet" href="slides/14-top-songs.css">
 <link rel="stylesheet" href="slides/15-most-skipped.css">
 <link rel="stylesheet" href="slides/16-fallen-favorite.css">
 <link rel="stylesheet" href="slides/17-taste-change.css">
@@ -230,7 +233,7 @@ svg text { fill: var(--fg); font: 800 13px var(--display); }
 // (opened straight from the file, a normal reload can keep stale data.js or page code).
 (() => {
   const v = Date.now();
-  ["vendor/d3.min.js", "vendor/topojson-client.min.js", "vendor/land.js", "data.js", "shapes.js", "recordRing.js", "core.js", "slides/01-whole-record.js", "slides/02-minutes.js", "slides/03-loudest-year.js", "slides/04-top-artist.js", "slides/05-top-artists.js", "slides/06-top-songs.js", "slides/07-listening-clock.js", "slides/08-biggest-day.js", "slides/09-seasons.js", "slides/10-saddest-day.js", "slides/11-happiest-day.js", "slides/12-after-midnight.js", "slides/13-eras.js", "slides/14-themes.js", "slides/15-most-skipped.js", "slides/16-fallen-favorite.js", "slides/17-taste-change.js", "slides/18-places.js", "slides/19-end-screen.js", "slides/era-page.js", "app.js"]
+  ["vendor/d3.min.js", "vendor/topojson-client.min.js", "vendor/land.js", "data.js", "shapes.js", "recordRing.js", "core.js", "slides/01-whole-record.js", "slides/02-minutes.js", "slides/03-loudest-year.js", "slides/04-biggest-day.js", "slides/05-listening-clock.js", "slides/06-after-midnight.js", "slides/07-seasons.js", "slides/08-saddest-day.js", "slides/09-happiest-day.js", "slides/10-eras.js", "slides/11-themes.js", "slides/12-top-artist.js", "slides/13-top-artists.js", "slides/14-top-songs.js", "slides/15-most-skipped.js", "slides/16-fallen-favorite.js", "slides/17-taste-change.js", "slides/18-places.js", "slides/19-end-screen.js", "slides/era-page.js", "app.js"]
     .forEach(src => document.write(`<script src="${src}?v=${v}"><\/script>`));
 })();
 </script>

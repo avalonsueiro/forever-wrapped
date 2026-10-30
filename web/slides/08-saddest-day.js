@@ -1,4 +1,4 @@
-/* Page 10: your saddest day.
+/* Page 08: your saddest day.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("saddest-day", () => {
@@ -16,8 +16,8 @@ defineSlide("saddest-day", () => {
     // in the empty space right of the text (under it on a phone). Each part forms at the same time.
     const face = (W, H) => {
       const phone = W < 700, u = shapeUnit(W, H);
-      const r = (phone ? 0.02 : 0.017) * u, step = 2 * r * 0.88;
-      const F = phone ? Math.min(0.36 * W, 0.17 * H) : Math.min(0.3 * H, 0.17 * W);
+      const r = 0.017 * u, step = 2 * r * 0.88;
+      const F = phone ? Math.min(0.3 * W, 0.14 * H) : Math.min(0.3 * H, 0.17 * W);
       const cx = phone ? W / 2 : 0.76 * W, cy = phone ? H - F - 0.06 * H : 0.54 * H;
       const arc = (x, y, R, a0, a1) => shapeSpaced(t => {           // angles in degrees, 0 = right, 90 = down
         const a = (a0 + (a1 - a0) * t) * Math.PI / 180; return [x + R * Math.cos(a), y + R * Math.sin(a)]; }, step);

@@ -1,4 +1,4 @@
-/* Page 12: after midnight you get ... (mood by hour strip).
+/* Page 06: after midnight you get ... (mood by hour strip).
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 
@@ -25,10 +25,10 @@ defineSlide("after-midnight", () => {
     const night = topGroup(nightMix);
     const KEYS = MOOD_GROUPS.map(([g]) => g);
     return { theme: "night",
+      trail: (W, H) => (W < 700 ? afterMidnightTrail(W, H) : []),      // phone only: fills the empty bottom of the tall screen
       html: `<div class="inner am">
       <p class="kick rise am-kick">${yr() ? `in ${yr()}, after midnight you got` : "after midnight you get"}</p>
       <h1 class="huge rise d1 am-mood" style="color:${GROUP_COLOR[night]}">${night}</h1>
-      <p class="sub rise d1 am-share">${Math.round(nightMix[night] * 100)}% of what you ${yr() ? "played" : "play"} between 11pm and 4am</p>
       <div class="chart rise d2 am-strip" id="hourstrip"></div>
       <div class="rise d3 am-legend"><div class="legend">${KEYS.map(g => `<span><i style="background:${GROUP_COLOR[g]}"></i>${g}</span>`).join("")}</div></div></div>`,
       after() {

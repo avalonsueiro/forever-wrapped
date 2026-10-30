@@ -1,4 +1,4 @@
-/* Styles for 14-themes.js only. Prefix every rule with a class or id from that page
+/* Styles for 11-themes.js only. Prefix every rule with a class or id from that page
    (e.g. .slide .my-thing) so it can't leak into other pages. */
 
 .slide .th { gap: clamp(14px, 2.6vh, 28px); }

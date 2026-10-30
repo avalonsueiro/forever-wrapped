@@ -11,7 +11,7 @@
 /* phone: the number has to fit the width; text sits in the upper middle above the pile */
 @media (max-width: 700px) {
   .slide .mn-wrap { margin-top: 14vh; margin-bottom: 0; gap: 4px; }
-  .slide .mn-wrap .mn-num { font-size: 19.5vw; }
-  .slide .mn-wrap .mn-unit { font-size: 44px; }
+  .slide .mn-wrap .mn-num { font-size: 15vw; }
+  .slide .mn-wrap .mn-unit { font-size: 32px; }
   .slide .mn-wrap .mn-days { margin-top: 14px; max-width: 24ch; }
 }

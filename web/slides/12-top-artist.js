@@ -1,4 +1,4 @@
-/* Page 04: your #1 artist, with their Spotify photo.
+/* Page 12: your #1 artist, with their Spotify photo.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 

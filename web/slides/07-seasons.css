@@ -1,4 +1,4 @@
-/* Styles for 09-seasons.js only. Prefix every rule with a class or id from that page
+/* Styles for 07-seasons.js only. Prefix every rule with a class or id from that page
    (e.g. .slide .my-thing) so it can't leak into other pages. */
 
 /* keep the content up out of the way of the four hills of records along the bottom */
@@ -22,10 +22,12 @@
 @media (max-width: 700px) {
   .slide:has(> .ssn) { padding-bottom: 96px; }
   .ssn-row { flex-wrap: wrap; gap: 18px; }
-  .ssn-text { gap: 10px; }
-  .ssn-head { font-size: clamp(40px, 12vw, 56px); }
-  .ssn-line { font-size: 22px; gap: 10px; }
-  .ssn-wheel { width: min(100%, 330px, 42vh); margin: 0 auto; }
+  .ssn-text { gap: 14px; }
+  .ssn-head { font-size: clamp(32px, 9vw, 40px); }
+  /* the season list steps back from the headline: smaller and lighter */
+  .ssn-line { font-size: 16px; gap: 8px; font-weight: 700; }
+  /* the wheel is the picture: as wide as the screen allows, pulled up under the text */
+  .ssn-wheel { width: min(100%, 370px, 46vh); margin: -6px auto 0; }
 }
 
 /* share of that season's listening, small and quiet after the group name */

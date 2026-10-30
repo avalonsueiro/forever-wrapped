@@ -59,27 +59,31 @@ const wholeRecordTrail = (W, H) => {
   const groups = wrGroups(days);
   const title = wrTitleBox();
   const phone = W <= 600 || H > W;
-  // every year starts on its own new row; pick the width that keeps the whole thing closest to a square
-  const rowsFor = c => groups.reduce((a, g) => a + Math.ceil(g.count / c), 0);
-  let cols = 1;
-  for (let c = 1; c <= n; c++) if (Math.abs(rowsFor(c) - c) < Math.abs(rowsFor(cols) - cols)) cols = c;
-  const rows = rowsFor(cols);
-  let r = 0;
-  groups.forEach(g => { g.row0 = r; r += Math.ceil(g.count / cols); g.row1 = r - 1; });
-  // bands only if every year after the first fills at least two rows (and not on a phone)
-  const bands = !phone && groups.every((g, k) => k === 0 || g.row1 - g.row0 >= 1);   // 2+ rows each
-  // the area the square may use
+  // the area the records may use
   let ax, ay, aw, ah;
   if (phone) {
-    const below = (title ? title.bottom : 0.45 * H) + 0.04 * H + 64;      // + room for the key (up to 3 lines)
-    ax = 0.05 * W; aw = 0.9 * W; ay = below; ah = H * 0.95 - below;
+    // under the one-line title, filling the screen, with a gutter on the right for the year labels
+    const below = (title ? title.bottom : 0.3 * H) + 0.035 * H;
+    ax = 16; aw = W - 16 - 78; ay = below; ah = H * 0.96 - below;
   } else {
     const right = W - Math.max(0.04 * W, (W - 1240) / 2) - 150;           // room for labels or key on the right
     const left = (title ? title.right : 0.45 * W) + 0.05 * W;
     ax = left; aw = Math.max(right - left, Math.min(0.3 * W, 0.6 * H)); ay = 0.11 * H; ah = 0.84 * H;
   }
+  // every year starts on its own new row. Wide screens: pick the width that keeps the whole thing
+  // closest to a square. Phones: the width that gives the biggest records in the tall area.
+  const rowsFor = c => groups.reduce((a, g) => a + Math.ceil(g.count / c), 0);
+  const fit = c => Math.min(aw / c, ah / rowsFor(c));
+  let cols = 1;
+  for (let c = 1; c <= n; c++)
+    if (phone ? fit(c) > fit(cols) : Math.abs(rowsFor(c) - c) < Math.abs(rowsFor(cols) - cols)) cols = c;
+  const rows = rowsFor(cols);
+  let r = 0;
+  groups.forEach(g => { g.row0 = r; r += Math.ceil(g.count / cols); g.row1 = r - 1; });
+  // bands only if every year after the first fills at least two rows
+  const bands = groups.every((g, k) => k === 0 || g.row1 - g.row0 >= 1);   // 2+ rows each
   const maxCell = Math.min(52, 0.07 * Math.min(W, H));                     // no bigger than a coin
-  const cell = Math.min(Math.min(aw, ah) / Math.max(cols, rows), maxCell);
+  const cell = Math.min(phone ? fit(cols) : Math.min(aw, ah) / Math.max(cols, rows), maxCell);
   const gw = cols * cell, gh = rows * cell;
   const x0 = phone ? ax + (aw - gw) / 2 : ax + aw - gw;                    // desktop: hug the right, next to the labels
   const y0 = phone ? ay + (ah - gh) / 2 : ay + (ah - gh) / 2;
@@ -107,19 +111,19 @@ function wrLabels(groups, n, cols, cell, x0, y0, gw, gh, phone, bands) {
   const days = g => `${g.count.toLocaleString("en-US")} day${g.count === 1 ? "" : "s"}`;
   if (bands) {
     let prev = -Infinity;
-    box.className = "wr-years";
+    box.className = "wr-years" + (phone ? " wr-phone" : "");
     box.removeAttribute("style");
     box.innerHTML = groups.map(g => {
       const r0 = g.row0, r1 = g.row1;
-      const top = Math.max(y0 + ((r0 + r1 + 1) / 2) * cell, prev + 22);   // middle of the year's rows, not on the label above
+      const top = Math.max(y0 + ((r0 + r1 + 1) / 2) * cell, prev + (phone ? 30 : 22));   // middle of the year's rows, not on the label above
       prev = top;
-      return `<span class="wr-year" style="left:${x0 + gw + 14}px;top:${top}px;color:${g.color};animation-delay:${at(g)}s">` +
+      return `<span class="wr-year" style="left:${x0 + gw + (phone ? 10 : 14)}px;top:${top}px;color:${g.color};animation-delay:${at(g)}s">` +
         `<b>${g.key}</b><small>${days(g)}</small></span>`;
     }).join("");
     return;
   }
-  box.className = "wr-years wr-key" + (phone ? " wr-key-row" : "");
-  box.style.cssText = phone ? `left:${Math.min(x0, 0.05 * innerWidth)}px;top:${y0 - 12}px;width:${Math.max(gw, 0.9 * innerWidth)}px;transform:translateY(-100%)` : `left:${x0 + gw + 22}px;top:${y0}px`;
+  box.className = "wr-years wr-key" + (phone ? " wr-phone" : "");
+  box.style.cssText = `left:${x0 + gw + (phone ? 10 : 22)}px;top:${y0}px`;
   box.innerHTML = groups.map(g => `<span class="wr-k" style="animation-delay:${at(g)}s"><i style="background:${g.color};color:${g.color}"></i>` +
     `<b style="color:${g.color}">${g.key}</b><small>${days(g)}</small></span>`).join("");
 }
@@ -154,7 +158,8 @@ function wrYearTrail(W, H) {
   }
   const rows = months.length;
   const cell = Math.min(aw / 31, 52);
-  const pitch = Math.min(Math.max(cell * 1.35, phone ? 16 : 24), ah / rows);   // rows a bit apart, so each label has room
+  // rows a bit apart, so each label has room; on a phone they spread out to use the tall screen
+  const pitch = Math.min(phone ? cell * 4 : Math.max(cell * 1.35, 24), ah / rows);
   const gw = 31 * cell, gh = rows * pitch;
   const x0 = phone ? ax : ax + aw - gw, y0 = ay + (ah - gh) / 2 + 10;
   wrMonthLabels(months, cell, pitch, x0, y0, gw, phone);

@@ -1,4 +1,4 @@
-/* Page 05: top 5 artists.
+/* Page 13: top 5 artists.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("top-artists", () => {

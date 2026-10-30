@@ -1,4 +1,4 @@
-/* Page 06: top 5 songs.
+/* Page 14: top 5 songs.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("top-songs", () => {

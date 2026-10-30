@@ -1,4 +1,4 @@
-/* Page 13: your eras (calendar with a highlighter stroke per era; click one to open it).
+/* Page 10: your eras (calendar with a highlighter stroke per era; click one to open it).
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style.
    Wide screens: one row per year, time runs left to right. Phones: one column per year, time runs

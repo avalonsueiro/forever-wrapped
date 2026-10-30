@@ -249,7 +249,7 @@ NAMING_TOOL = {
         "properties": {
             "eras": {"type": "array", "items": {"type": "object", "properties": {
                 "index": {"type": "integer"},
-                "name": {"type": "string", "description": "2-5 words, like an album title"},
+                "name": {"type": "string", "description": "2-4 words: a real song title, artist or genre from the era plus one plain word, e.g. 'Sports Car Summer'"},
                 "tagline": {"type": "string", "description": "one plain sentence, under 14 words"}},
                 "required": ["index", "name", "tagline"]}},
             "years": {"type": "array", "items": {"type": "object", "properties": {
@@ -270,13 +270,18 @@ def ask_for_names(client, anthropic, brief) -> dict:
     if it replies with plain text instead."""
     params = dict(
         model=config.WRITER_MODEL, max_tokens=4000,
-        system=("You name chapters of one person's music-listening history, like a record label "
-                "naming albums. Each era is a short spike where their listening departed from normal; "
-                "its 'drivers' say what spiked (a song on repeat, an artist, a theme or mood, listening "
-                "amount). Eras can overlap and are not continuous, so name each one on its own. Base "
-                "every name on the data given (drivers, moods, themes, artists, songs). Keep "
-                "names evocative and specific, avoid cliches, and do not invent facts about the "
-                "person's life. Write taglines, titles and the summary the way a friend would text "
+        system=("You name chapters of one person's music-listening history. Each era is a short spike "
+                "where their listening departed from normal; its 'drivers' say what spiked (a song on "
+                "repeat, an artist, a theme or mood, listening amount). Eras can overlap and are not "
+                "continuous, so name each one on its own, and do not invent facts about the person's life. "
+                "Every era name follows one format: something the person would recognize at a glance "
+                "from that era (a song title, an artist's name or a kind of music, written the way it "
+                "appears in the data, not a fragment of it) plus one plain word for how it felt or "
+                "when it was. Examples of the format: 'Stick Season Marathon', 'Sports Car Summer', "
+                "'Original Cast Fever', 'Too Sweet Summer', 'Dive Into Olivia'. 2 to 4 words. No band "
+                "trivia, no inside jokes, no puns on lyrics, no words that only make sense if you "
+                "know the album. Vary the plain word across eras so they don't all end in a season. "
+                "Write taglines, titles and the summary the way a friend would text "
                 "them: plain everyday words, short, specific (a song, an artist, a month). Never "
                 "list three things; name one or two. No flowery verbs (powered, fueled, anchored, "
                 "swallowed, soaked, carried) and no stacked adjectives. No em dashes. "
@@ -311,9 +316,14 @@ def mock_names(eras, years):
     }
 
 
-def run(mode: str = "live"):
+def run(mode: str = "live", names_only: bool = False):
     df = load_plays_with_tags()
-    df, eras = build_eras(df)
+    if names_only and config.ERAS_CACHE.exists():
+        # keep the eras you already have (photo folders and era_notes.csv are tied to their dates)
+        # and only ask for new names
+        eras = json.loads(config.ERAS_CACHE.read_text())["eras"]
+    else:
+        df, eras = build_eras(df)
     years = sorted(int(y) for y in df["year"].unique())
     tagged_note = "" if df["tagged"].any() else " (no tags yet, so themes and moods weren't used)"
     print(f"  found {len(eras)} eras across {len(years)} years{tagged_note}")
@@ -326,7 +336,9 @@ def run(mode: str = "live"):
             raise SystemExit("ANTHROPIC_API_KEY is not set. Add it to .env or use --mode mock.")
         client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
         per_year = {y: describe(df[df["year"] == y]) for y in years}
-        brief = {"eras": [{"index": i, **e} for i, e in enumerate(eras)], "years": per_year}
+        # (old names are left out so they don't steer the new ones)
+        brief = {"eras": [{"index": i, **{k: v for k, v in e.items() if k not in ("name", "tagline")}}
+                          for i, e in enumerate(eras)], "years": per_year}
         names = ask_for_names(client, anthropic, brief)
 
     by_index = {e["index"]: e for e in names["eras"]}

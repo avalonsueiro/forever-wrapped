@@ -1,4 +1,4 @@
-/* Styles for 08-biggest-day.js only. Every rule starts with .bd8 so nothing leaks. */
+/* Styles for 04-biggest-day.js only. Every rule starts with .bd8 so nothing leaks. */
 .slide .inner.bd8 { width: min(1100px, 100%); gap: 14px; justify-items: start; }
 .slide .bd8 > * { max-width: min(640px, 58vw); }
 .slide .bd8 .kick { color: var(--ac); }
@@ -17,6 +17,6 @@
 
 @media (max-width: 700px) {
   .slide .bd8 > * { max-width: 100%; }
-  .slide .bd8 .bd8-num { font-size: clamp(88px, 34vw, 150px); }
+  .slide .bd8 .bd8-num { font-size: clamp(72px, 23vw, 96px); }
   .slide .bd8 .bd8-chart { width: 100%; }
 }

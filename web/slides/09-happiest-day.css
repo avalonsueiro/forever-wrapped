@@ -1,4 +1,4 @@
-/* Styles for 11-happiest-day.js only. Every rule starts with .hd11 so nothing leaks. */
+/* Styles for 09-happiest-day.js only. Every rule starts with .hd11 so nothing leaks. */
 .slide .inner.hd11 { width: min(1100px, 100%); gap: 18px; justify-items: start; }
 .slide .hd11 > * { max-width: min(680px, 56vw); }
 .slide .hd11 .kick { color: var(--ac); margin: 0; }

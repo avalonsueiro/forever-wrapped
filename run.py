@@ -7,6 +7,7 @@ Forever, Wrapped: run the pipeline one step at a time, or all at once.
     python run.py tag    --mode live     # 3. Claude tags each song (live | batch | mock)
     python run.py tag --research-missing # 3b. songs with no lyrics: Claude web-searches, then tags
     python run.py eras   --mode live     # 4. find eras, Claude names them    (live | mock)
+    python run.py eras --names-only      #    keep your eras (and their photos), just rename them
     python run.py build                  # 5. compute every chart -> web/data.js
     python run.py photos [--ai]          # 6. (Mac) pick era photos from Photos + where you were, then build again
     python run.py photos --folder PATH   # 6. (any computer) the same, from a folder of photo files
@@ -60,6 +61,7 @@ def photos(folder, ai):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--names-only", action="store_true", help="eras: keep your eras, just rename them")
     p.add_argument("step", choices=["sample", "load", "lyrics", "tag", "eras", "build", "photos", "all", "clean"])
     p.add_argument("--mode", default="live", choices=["live", "batch", "mock"])
     p.add_argument("--limit", type=int, default=None)
@@ -78,7 +80,7 @@ def main():
         "load": lambda: step1_load.run(),
         "lyrics": lambda: step2_lyrics.run(a.limit, "mock" if a.mode == "mock" else "live"),
         "tag": lambda: step3b_research.run(a.limit) if a.research_missing else step3_tag.run(a.mode, a.limit, a.redo, a.yes),
-        "eras": lambda: step4_eras.run("mock" if a.mode == "mock" else "live"),
+        "eras": lambda: step4_eras.run("mock" if a.mode == "mock" else "live", names_only=a.names_only),
         "build": lambda: step5_build.run(),
         "photos": lambda: photos(a.folder, a.ai),
         "clean": clean,

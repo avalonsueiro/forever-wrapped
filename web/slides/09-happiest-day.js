@@ -1,4 +1,4 @@
-/* Page 11: your happiest day.
+/* Page 09: your happiest day.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("happiest-day", () => {

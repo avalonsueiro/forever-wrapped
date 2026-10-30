@@ -1,4 +1,4 @@
-/* Page 08: your biggest day + longest streak.
+/* Page 04: your biggest day + longest streak.
    One file per page. build() returns { theme, html, after?, trail?, glow?, interactive? } or null to skip
    the page; see web/slides/README.md for what each field does and the house style. */
 defineSlide("biggest-day", () => {
@@ -31,7 +31,7 @@ defineSlide("biggest-day", () => {
       const ang = (phone ? 30 : 62) * Math.PI / 180, dx = -Math.cos(ang), dy = -Math.sin(ang);
       const step = 2.7 * R / Math.sin(ang);                 // gap between lines, measured along the bottom edge
       const x0 = phone ? W + 1.6 * step : W + 0.4 * step;   // where the rightmost line leaves the bottom edge
-      const lens = phone ? [1.55 * W, 1.45 * W, 1.2 * W] : [0.6 * H, 0.98 * H, 0.52 * H];
+      const lens = phone ? [1.15 * W, 1.05 * W, 0.85 * W] : [0.6 * H, 0.98 * H, 0.52 * H];
       return lens.flatMap((len, i) => {
         const fx = x0 - i * step, fy = H + R;
         return SHAPES.line({ from: [fx / W, fy / H], to: [(fx + dx * len) / W, (fy + dy * len) / H], r })(W, H);

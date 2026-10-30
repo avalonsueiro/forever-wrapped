@@ -47,7 +47,7 @@
 /* phones: one column, photos in a tight row of three so the whole era fits on one screen */
 @media (max-width: 800px) {
   #eraview { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); overflow-x: hidden; }
-  #eraview .ev-body { width: 100%; gap: 26px; min-height: 0; }
+  #eraview .ev-body { width: 100%; margin-left: 0; gap: 26px; min-height: 0; }
   #eraview .ev-photos, #eraview .ev-photos.many { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0 4px; }
   #eraview figure { padding: 5px 5px 16px; }
   #eraview .ev-name { font-size: max(30px, min(12vw, 100cqw / (var(--nl, 8) * 0.56))); }

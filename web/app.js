@@ -97,11 +97,15 @@ else {
   // Size the ring from the window height: the top and bottom records' centers sit exactly on the
   // screen edges, so the edges cut them in half. RecordRing puts record centers at
   // size/2 - radius - 3 from the middle (radius = size * sizeFraction / 2); solve that for size.
-  const RING_FRACTION = 0.19, RING_OVERLAP = 0.82;
+  const RING_OVERLAP = 0.82;
+  const ringFraction = () => innerWidth < 700 ? 0.25 : 0.19;   // each record's size as a share of the ring (bigger on a phone)
   const ringBox = $(".intro-ring");
-  const ringSize = () => (innerHeight / 2 + 3) / (0.5 - RING_FRACTION / 2);
+  // On a phone (narrow screen) that ring would be far wider than the screen, so only its top and
+  // bottom would show; there it's sized from the width instead, a little wider than the screen so
+  // the side records are just clipped and the whole circle reads.
+  const ringSize = () => innerWidth < 700 ? innerWidth * 1.15 : (innerHeight / 2 + 3) / (0.5 - ringFraction() / 2);
   const evenCount = size => {                    // an even number of records puts one exactly at the bottom
-    const d = size * RING_FRACTION, n = Math.round((2 * Math.PI * (size / 2 - d / 2 - 3)) / (d * RING_OVERLAP));
+    const d = size * ringFraction(), n = Math.round((2 * Math.PI * (size / 2 - d / 2 - 3)) / (d * RING_OVERLAP));
     return n + (n % 2);
   };
   // The canvas is bigger than the ring by a margin (RING_PAD of the canvas on each side) so the
@@ -117,17 +121,17 @@ else {
     labelColors: RING_COLORS, glowColors: RING_COLORS, labelGlows: LABEL_GLOWS,
     glowSize: 0.8, glowPasses: 2,                          // big, bright glow
     moveSeconds: 0.26, spinSpeed: 2.5, loop: false,  // about 4.4 s to form the ring once, then the labels keep spinning
-    sizeFraction: RING_FRACTION, overlap: RING_OVERLAP, pad: RING_PAD, count: evenCount(ringSize()),
+    sizeFraction: ringFraction(), overlap: RING_OVERLAP, pad: RING_PAD, count: evenCount(ringSize()),
   });
-  // Put the button halfway between the bottom of the title and the top of the bottom record (whose
-  // center sits on the screen's bottom edge, so its top is one record radius above it).
+  // Put the button halfway between the bottom of the title and the top of the bottom record.
   const goBtn = $("#introGo"), title = $(".intro-title");
   const BUTTON_NUDGE = 5;                                      // px above the exact halfway point
   const placeButton = (pauseAnimations) => {
     if (pauseAnimations) intro.classList.add("measuring");      // measure final positions, not mid-animation
     goBtn.style.translate = "0 0";
     const titleBottom = title.getBoundingClientRect().bottom;
-    const recordTop = innerHeight - ringSize() * RING_FRACTION / 2;
+    const size = ringSize(), d = size * ringFraction();
+    const recordTop = innerHeight / 2 + size / 2 - d - 3;       // bottom record's center is size/2 - d/2 - 3 below the middle
     const b = goBtn.getBoundingClientRect();
     goBtn.style.translate = `0 ${(titleBottom + recordTop) / 2 - (b.top + b.height / 2) - BUTTON_NUDGE}px`;
     if (pauseAnimations) intro.classList.remove("measuring");
@@ -137,7 +141,7 @@ else {
   const resizeRing = () => {
     if (intro.hidden) return;
     setRingBox();
-    ring.setOptions({ count: evenCount(ringSize()) });
+    ring.setOptions({ count: evenCount(ringSize()), sizeFraction: ringFraction() });
     placeButton(false);
   };
   addEventListener("resize", resizeRing);

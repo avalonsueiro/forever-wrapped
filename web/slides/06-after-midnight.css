@@ -1,4 +1,4 @@
-/* Styles for 12-after-midnight.js only. Prefix every rule with a class or id from that page
+/* Styles for 06-after-midnight.js only. Prefix every rule with a class or id from that page
    (e.g. .slide .my-thing) so it can't leak into other pages. */
 
 /* lifted a little so the row of records along the bottom stays clear of the legend */
@@ -16,9 +16,7 @@
 
 @media (max-width: 700px) {
   .slide .am { margin: 4vh 0 0; }
-  .slide .am-mood { font-size: clamp(56px, 19vw, 96px); }
+  .slide .am-mood { font-size: clamp(48px, 15vw, 60px); }
   .slide .am-legend .legend { font-size: 13px; gap: 6px 14px; }
 }
 
-/* how big the night's group is, under the headline */
-.slide .am .am-share { margin: 0; opacity: .7; }
